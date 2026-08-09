@@ -279,6 +279,78 @@ input:focus,select:focus,textarea:focus{box-shadow:0 0 0 3px rgba(111,167,255,.1
 
 /* polish pass */.dayhint{margin-bottom:16px;font-size:12px;line-height:1.5}.daybar{gap:8px;margin-bottom:10px}.summary{margin-bottom:16px}.mini{gap:14px}.mini div span{font-size:9px;letter-spacing:.08em;opacity:.9}.nowline{background:linear-gradient(90deg,var(--accent),transparent);height:2px;margin:6px 0 12px}.nowline:after{font-size:8.5px;letter-spacing:.14em;top:-15px}.stime{flex:0 0 54px}.ssub{font-size:11px;opacity:.85;margin-top:3px}.sheet.meta{font-size:11.5px;margin-bottom:16px;opacity:.9}.sgrid{gap:9px}.sbtn small{margin-top:3px;line-height:1.35}.reflink{border-radius:12px;padding:11px 14px;font-size:13px}.callegend{margin-bottom:16px;opacity:.9}.calgrid{gap:6px}.calhd{font-size:9px;opacity:.8}.empty,.hint{line-height:1.55}.offday{border-radius:var(--r);padding:34px 18px;background:linear-gradient(160deg, rgba(28,39,63,.5), rgba(15,22,39,.5))}.offday b{font-size:20px;letter-spacing:-.02em}
 h2,h3,h4,.tc-top b,.stitle{text-wrap:balance}
+
+/* ============ performance + legibility pass (last) ============ */
+:root{
+  --panel:#141D31; --panel2:#0E1626; --raise:#1E2A44;
+  --line:rgba(140,170,220,.16); --line2:rgba(140,170,220,.30);
+}
+.card,.trackcard,.course,.wday,.offday,.preview,.guide,.pill,.calcell,.slot,.msg,#toast{
+  backdrop-filter:none !important; -webkit-backdrop-filter:none !important;
+}
+.card,.trackcard{background:linear-gradient(160deg,#1A2438,#121A2C)}
+.course,.wday{background:linear-gradient(160deg,#182134,#111828)}
+.offday{background:linear-gradient(160deg,#1A2438,#121A2C)}
+.slot{background:linear-gradient(150deg,#1A2338,#111827)}
+.calcell{background:linear-gradient(160deg,#182134,#111828)}
+.calcell.sel{background:linear-gradient(160deg,#3A3121,#2A2318)}
+.preview,.guide{background:#101828}
+.pill{background:#162034}
+.summary{background:linear-gradient(150deg,#26283A,#171F35 55%,#1B1B33)}
+.sheet{background:#131B2D;backdrop-filter:none !important}
+#toast{background:#1E2A44}
+.msg.assistant{background:#101828}
+input[type=text],input[type=password],input[type=time],input[type=date],input[type=number],select,textarea{background:#0C1322}
+aside{background:#141D31}
+header{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);background:linear-gradient(180deg,rgba(10,15,27,.93),rgba(7,11,20,.82))}
+.bnav{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);background:linear-gradient(180deg,rgba(11,17,30,.9),rgba(7,11,20,.97))}
+.scrim{backdrop-filter:none !important;background:rgba(4,8,16,.66)}
+.slots .slot{content-visibility:auto;contain-intrinsic-size:auto 80px}
+.lessons .lesson{content-visibility:auto;contain-intrinsic-size:auto 38px}
+.weekgrid .wday{content-visibility:auto;contain-intrinsic-size:auto 180px}
+.slot,.calcell,.trackcard,.dbtn,.gbtn,.chip,.sbtn,.vtab,.bitem{
+  transition-property:transform,opacity,border-color,color,background-color;
+  transition-duration:.16s;
+}
+.slot:hover,.trackcard:hover{transform:none;box-shadow:0 4px 16px rgba(0,0,0,.18)}
+@media (hover:hover){
+  .slot:hover{transform:translateY(-1px)}
+  .trackcard:hover{transform:translateY(-1px)}
+}
+@media (max-width:900px){
+  aside{background:#151E33;box-shadow:14px 0 46px rgba(0,0,0,.62)}
+}
+
+/* ---------- bottom sheet: swipe to dismiss ---------- */
+.sheetscrim{
+  position:fixed;inset:0;z-index:39;background:rgba(4,8,16,.6);
+  opacity:0;transition:opacity .28s cubic-bezier(.32,.72,0,1);
+}
+.sheetscrim.on{opacity:1}
+body.sheet-open{overflow:hidden}
+.sheet{
+  transform:translate3d(0,102%,0);
+  transition:transform .34s cubic-bezier(.32,.72,0,1);
+  will-change:transform;
+  touch-action:pan-y;
+  overscroll-behavior:contain;
+}
+.sheet.open{transform:translate3d(0,0,0)}
+.sheet.dragging{transition:none}
+.grab{
+  position:sticky;top:0;z-index:2;margin:-14px -18px 6px;padding:12px 18px 8px;
+  touch-action:none;cursor:grab;background:linear-gradient(180deg,#131B2D 70%,rgba(19,27,45,0));
+}
+.grab:active{cursor:grabbing}
+.grab .handle{margin:0 auto}
+.sheet .handle{width:44px;height:5px;border-radius:99px;background:rgba(140,170,220,.34);transition:background .2s,width .2s}
+.grab:active .handle{background:rgba(140,170,220,.6);width:52px}
+
+aside{will-change:transform;touch-action:pan-y}
+@media (max-width:900px){
+  aside{transition:transform .3s cubic-bezier(.32,.72,0,1)}
+}
+.scrim{transition:opacity .28s cubic-bezier(.32,.72,0,1)}
 </style>
 </head>
 <body>
@@ -289,6 +361,7 @@ h2,h3,h4,.tc-top b,.stitle{text-wrap:balance}
   <div class="hbar">
     <button class="iconbtn" id="menu" aria-label="Menu"><span class="burger"></span></button>
     <div class="htitle"><b id="htitle">Today</b><span id="hsub"></span></div>
+    <button class="iconbtn" id="hsearch" aria-label="Search"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></button>
     <div class="hstat">
       <div class="pill" title="Day streak">&#128293; <b id="p-streak">0</b></div>
       <div class="pill" title="Hours studied"><b id="p-hours">0</b>h</div>
@@ -310,8 +383,9 @@ h2,h3,h4,.tc-top b,.stitle{text-wrap:balance}
   <main id="main"></main>
 </div>
 
-<nav class="bnav" id="bnav"><div class="bnav-in"><button class="vtab bitem on" data-v="today"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 11h18"/><circle cx="12" cy="16" r="1.6" fill="currentColor" stroke="none"/></svg><span>Today</span></button><button class="vtab bitem" data-v="week"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 10h18M9 10v11M15 10v11"/></svg><span>Week</span></button><button class="vtab bitem" data-v="calendar"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 11h18M7.5 15h2M11 15h2M14.5 15h2M7.5 18h2M11 18h2"/></svg><span>Calendar</span></button><button class="vtab bitem" data-v="tracks"><svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H19v3H6.5A2.5 2.5 0 0 1 4 20.5zM9 7h6M9 11h4"/></svg><span>Learn</span></button><button class="vtab bitem" data-v="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><span>Search</span></button></div></nav>
-<div class="sheet" id="sheet"><div class="handle"></div><div id="sheetbody"></div></div>
+<nav class="bnav" id="bnav"><div class="bnav-in"><button class="vtab bitem on" data-v="today"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 11h18"/><circle cx="12" cy="16" r="1.6" fill="currentColor" stroke="none"/></svg><span>Today</span></button><button class="vtab bitem" data-v="week"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 10h18M9 10v11M15 10v11"/></svg><span>Week</span></button><button class="vtab bitem" data-v="calendar"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 11h18M7.5 15h2M11 15h2M14.5 15h2M7.5 18h2M11 18h2"/></svg><span>Calendar</span></button><button class="vtab bitem" data-v="tracks"><svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H19v3H6.5A2.5 2.5 0 0 1 4 20.5zM9 7h6M9 11h4"/></svg><span>Learn</span></button><button class="vtab bitem" data-v="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 7 19.4a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 3 15a1.7 1.7 0 0 0-1.55-1H1.3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 3 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 7 4.6h.08A1.7 1.7 0 0 0 8.7 3.05V3a2 2 0 1 1 4 0v.09A1.7 1.7 0 0 0 15 4.6a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9v.08a1.7 1.7 0 0 0 1.55 1.62H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1.3z"/></svg><span>Settings</span></button></div></nav>
+<div class="sheetscrim" id="sheetscrim" hidden></div>
+<div class="sheet" id="sheet"><div class="grab" id="sheetgrab"><div class="handle"></div></div><div id="sheetbody"></div></div>
 <div id="toast"></div>
 
 <script>
@@ -543,7 +617,17 @@ function tmplFor(dateKey){
 }
 
 /* build the day's structure (no lessons attached yet) */
+const STRUCT_CACHE={};
+function structVersion(){ return (S.__sv=S.__sv||0); }
+function bumpStruct(){ S.__sv=(S.__sv||0)+1; for(const k in STRUCT_CACHE) delete STRUCT_CACHE[k]; }
 function structure(dateKey){
+  const ck=dateKey+"|"+structVersion();
+  if(STRUCT_CACHE[ck]) return STRUCT_CACHE[ck];
+  const out=structureRaw(dateKey);
+  STRUCT_CACHE[ck]=out;
+  return out;
+}
+function structureRaw(dateKey){
   const t=tmplFor(dateKey);
   if(!t || !t.win || !t.win.length) return [];
   const MIN=15;
@@ -600,7 +684,7 @@ function ordinals(dateKey){
   ORD[dateKey]=base;
   return base;
 }
-function clearOrd(){ for(const k in ORD) delete ORD[k]; }
+function clearOrd(){ for(const k in ORD) delete ORD[k]; bumpStruct(); }
 
 function generateDay(dateKey){
   const st=structure(dateKey);
@@ -749,7 +833,7 @@ function paintSide(){
   });
   h+='<div class="sideh">Plan</div>';
   h+='<button class="srow" data-aiopen="1"><span class="dot" style="background:var(--accent)"></span>AI tutor</button>';
-  h+='<button class="srow" data-jump="settings"><span class="dot" style="background:var(--muted)"></span>Edit my hours</button>';
+  h+='<button class="srow" data-jump="settings"><span class="dot" style="background:var(--accent)"></span>Settings, hours &amp; AI key</button>';
   h+='<button class="srow" data-act="export"><span class="dot" style="background:var(--muted)"></span>Export backup</button>';
   h+='<button class="srow" data-act="import"><span class="dot" style="background:var(--muted)"></span>Import backup</button>';
   h+='<button class="srow" data-act="savecopy"><span class="dot" style="background:var(--muted)"></span>Save copy (with progress)</button>';
@@ -1185,6 +1269,18 @@ function renderTracks(){
     h+='</button>';
   });
   mainEl.innerHTML=h;
+}
+
+function updateLibCounts(track){
+  const courses=coursesOf(track);
+  document.querySelectorAll("[data-libcourse]").forEach(btn=>{
+    const ci=+btn.dataset.libcourse.split("|")[1];
+    const c=courses[ci]; if(!c) return;
+    const f=btn.querySelector(".c-frac");
+    if(f){ const d=doneCountIn(track,c.items); f.textContent=d+"/"+c.items.length; f.classList.toggle("full", d===c.items.length); }
+  });
+  const sub=document.querySelector(".dayhead .sub");
+  if(sub) sub.textContent=doneCount(track)+" of "+(POOLS[track]||[]).length+" complete";
 }
 
 function renderTrackDetail(track){
@@ -1868,9 +1964,89 @@ function commitEditor(how){
 }
 
 /* ================= action sheet ================= */
-let sheetOpen=false;
-function openSheet(html){ $("#sheetbody").innerHTML=html; $("#sheet").classList.add("open"); sheetOpen=true; }
-function closeSheet(){ $("#sheet").classList.remove("open"); sheetOpen=false; }
+let sheetOpen=false, sheetSuppressClick=false;
+function openSheet(html){
+  const sh=$("#sheet"), sc=$("#sheetscrim");
+  $("#sheetbody").innerHTML=html;
+  sh.style.transform="";
+  sh.classList.remove("dragging");
+  sh.classList.add("open");
+  sh.scrollTop=0;
+  sc.hidden=false;
+  requestAnimationFrame(()=>sc.classList.add("on"));
+  document.body.classList.add("sheet-open");
+  sheetOpen=true;
+}
+function closeSheet(){
+  const sh=$("#sheet"), sc=$("#sheetscrim");
+  if(!sheetOpen && !sh.classList.contains("open")) return;
+  sh.classList.remove("dragging");
+  sh.style.transform="";
+  sh.classList.remove("open");
+  sc.classList.remove("on");
+  setTimeout(()=>{ if(!sheetOpen) sc.hidden=true; }, 300);
+  document.body.classList.remove("sheet-open");
+  sheetOpen=false;
+}
+
+/* drag the sheet down to dismiss, with rubber banding and a velocity flick */
+function wireSheetDrag(){
+  const sh=$("#sheet"), sc=$("#sheetscrim"), grab=$("#sheetgrab");
+  let dragging=false, startY=0, dy=0, startT=0, height=0, lastY=0, lastT=0, vel=0, moved=false, pid=null;
+
+  const canStartFrom=t=>{
+    if(grab.contains(t)) return true;                       // the grabber always drags
+    if(t.closest("input,select,textarea,pre,.chat")) return false;
+    return sh.scrollTop<=0;                                 // otherwise only at the top
+  };
+  const begin=e=>{
+    if(!sheetOpen || e.pointerType==="mouse" && !grab.contains(e.target)) {
+      if(!grab.contains(e.target)) return;
+    }
+    if(!canStartFrom(e.target)) return;
+    dragging=true; moved=false;
+    startY=lastY=e.clientY; startT=lastT=performance.now();
+    dy=0; vel=0; height=sh.getBoundingClientRect().height; pid=e.pointerId;
+  };
+  const move=e=>{
+    if(!dragging) return;
+    const raw=e.clientY-startY;
+    if(!moved && Math.abs(raw)<5) return;
+    if(!moved){ moved=true; try{ sh.setPointerCapture(pid); }catch(_){} }
+    dy = raw<0 ? raw/4 : raw;                                // resist upward pull
+    const now=performance.now();
+    if(now-lastT>8){ vel=(e.clientY-lastY)/(now-lastT); lastY=e.clientY; lastT=now; }
+    sh.classList.add("dragging");
+    sh.style.transform="translate3d(0,"+dy+"px,0)";
+    sc.style.opacity=String(Math.max(0, 1-(dy/height)*1.25));
+  };
+  const end=()=>{
+    if(!dragging) return;
+    dragging=false;
+    if(pid!=null){ try{ sh.releasePointerCapture(pid); }catch(_){} pid=null; }
+    sh.classList.remove("dragging");
+    sc.style.opacity="";
+    if(moved){
+      sheetSuppressClick=true;
+      setTimeout(()=>{ sheetSuppressClick=false; }, 60);
+    }
+    const flick = vel>0.55;                                  // fast downward flick
+    const far   = dy > height*0.3;
+    if(moved && (flick||far)){
+      try{ navigator.vibrate && navigator.vibrate(8); }catch(_){}
+      sh.style.transform="";
+      closeSheet();
+    }else{
+      sh.style.transform="";                                 // spring back
+    }
+    dy=0; vel=0;
+  };
+  sh.addEventListener("pointerdown", begin);
+  sh.addEventListener("pointermove", move, {passive:true});
+  sh.addEventListener("pointerup", end);
+  sh.addEventListener("pointercancel", end);
+  sc.addEventListener("click", closeSheet);
+}
 
 function findItem(id){
   for(const k in S.days){
@@ -2112,6 +2288,47 @@ function updateDayMeter(){
 }
 
 /* ================= render switch ================= */
+
+/* swipe the drawer left to close it */
+function wireDrawerDrag(){
+  const el=$("#side");
+  if(!el) return;
+  let on=false, x0=0, dx=0, w=0, lastX=0, lastT=0, v=0, moved=false, pid=null;
+  el.addEventListener("pointerdown", e=>{
+    if(!document.body.classList.contains("nav-open")) return;
+    if(e.target.closest("input,select,textarea")) return;
+    on=true; moved=false; x0=lastX=e.clientX; lastT=performance.now(); dx=0; v=0;
+    w=el.getBoundingClientRect().width; pid=e.pointerId;
+  });
+  el.addEventListener("pointermove", e=>{
+    if(!on) return;
+    const raw=e.clientX-x0;
+    if(!moved && Math.abs(raw)<6) return;
+    if(!moved){ moved=true; try{ el.setPointerCapture(pid); }catch(_){} }
+    dx = raw>0 ? raw/4 : raw;
+    const now=performance.now();
+    if(now-lastT>8){ v=(e.clientX-lastX)/(now-lastT); lastX=e.clientX; lastT=now; }
+    el.style.transition="none";
+    el.style.transform="translate3d("+dx+"px,0,0)";
+    const sc=$("#scrim"); if(sc) sc.style.opacity=String(Math.max(0,1-Math.abs(dx)/w));
+  }, {passive:true});
+  const end=()=>{
+    if(!on) return;
+    on=false;
+    if(pid!=null){ try{ el.releasePointerCapture(pid); }catch(_){} pid=null; }
+    el.style.transition=""; el.style.transform="";
+    const sc=$("#scrim"); if(sc) sc.style.opacity="";
+    if(moved){ sheetSuppressClick=true; setTimeout(()=>{ sheetSuppressClick=false; },60); }
+    if(moved && (dx < -w*0.3 || v < -0.5)){
+      try{ navigator.vibrate && navigator.vibrate(8); }catch(_){}
+      closeNav();
+    }
+    dx=0; v=0;
+  };
+  el.addEventListener("pointerup", end);
+  el.addEventListener("pointercancel", end);
+}
+
 function render(){
   paintHeader(); paintSide();
   if(view==="today") renderDay();
@@ -2124,6 +2341,7 @@ function render(){
 
 /* ================= global events ================= */
 function wireGlobal(){
+  $("#hsearch").addEventListener("click", ()=>setView("search"));
   $("#menu").addEventListener("click", ()=> document.body.classList.contains("nav-open")?closeNav():openNav());
   $("#scrim").addEventListener("click", closeNav);
   document.querySelectorAll(".vtab").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.v)));
@@ -2135,6 +2353,7 @@ function wireGlobal(){
   fi.addEventListener("change",e=>{ if(e.target.files[0]) importJSON(e.target.files[0]); e.target.value=""; });
 
   document.addEventListener("click", e=>{
+    if(sheetSuppressClick) return;
     const t=e.target;
     const hit=sel=>t.closest("["+sel+"]");
 
@@ -2249,7 +2468,7 @@ function wireGlobal(){
     }
     if(hit("data-gkeysave")){
       aiCfg().gkey=$("#gkey").value.trim(); save(); render();
-      toast(aiCfg().gkey?"Google key saved: tutor is ready.":"Google key cleared."); return;
+      toast(aiCfg().gkey?"Google key saved. Tutor is ready.":"Google key cleared."); return;
     }
     if((el=hit("data-aiprov"))){ aiCfg().prov=el.dataset.aiprov; save(); render(); toast("Using: "+ROUTE_NAME[aiRoute()]+"."); return; }
     if((el=hit("data-gmodel"))){ aiCfg().gmodel=el.dataset.gmodel; save(); render(); return; }
@@ -2267,7 +2486,9 @@ function wireGlobal(){
     if((el=hit("data-ltick"))){
       const [tr,i]=el.dataset.ltick.split("|");
       markLesson(tr,+i,el.checked);
-      renderTrackDetail(libTrack); paintHeader();
+      const row=el.closest(".lesson"); if(row) row.classList.toggle("d", el.checked);
+      updateLibCounts(tr);
+      paintHeader();
       return;
     }
     if((el=hit("data-lopen"))){ const [tr,i]=el.dataset.lopen.split("|"); openLesson(tr,+i); return; }
@@ -2464,7 +2685,7 @@ function wireGlobal(){
     }
     if((el=hit("data-accent"))){ S.accent=el.dataset.accent; applyLook(); save(); render(); return; }
     if((el=hit("data-wall"))){ S.wallpaper=el.dataset.wall==="1"; applyLook(); save(); render(); return; }
-    if(sheetOpen && !t.closest("#sheet")) closeSheet();
+    if(sheetOpen && !t.closest("#sheet") && !t.closest("#sheetscrim")) closeSheet();
   });
 
   document.addEventListener("change", e=>{
@@ -2493,10 +2714,11 @@ function wallpaper(){
   const cv=$("#wall"); if(!cv||!cv.getContext) return;
   const ctx=cv.getContext("2d");
   const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const dpr=Math.min(devicePixelRatio||1,2);
+  const dpr=Math.min(devicePixelRatio||1,1.5);
   let W,H,N=[],raf=null; const ms={x:-9e9,y:-9e9};
   function seed(){
-    const c=Math.min(52,Math.max(18,Math.floor(innerWidth*innerHeight/30000)));
+    const lowEnd=(navigator.hardwareConcurrency||4)<=4 || (navigator.deviceMemory||4)<4;
+    const c=lowEnd?14:Math.min(30,Math.max(12,Math.floor(innerWidth*innerHeight/46000)));
     N=Array.from({length:c},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.2*dpr,vy:(Math.random()-.5)*.2*dpr,r:(Math.random()*1.3+.7)*dpr,a:Math.random()<.16}));
   }
   function size(){ W=cv.width=innerWidth*dpr; H=cv.height=innerHeight*dpr; cv.style.width=innerWidth+"px"; cv.style.height=innerHeight+"px"; seed(); }
@@ -2517,11 +2739,19 @@ function wallpaper(){
     const acc=S.accent||"#FFB454";
     for(const n of N){ ctx.fillStyle=n.a?acc+"99":"rgba(111,167,255,.38)"; ctx.beginPath(); ctx.arc(n.x,n.y,n.r,0,6.2832); ctx.fill(); }
   }
-  function loop(){ draw(); raf=requestAnimationFrame(loop); }
-  addEventListener("resize",size);
-  addEventListener("pointermove",e=>{ ms.x=e.clientX*dpr; ms.y=e.clientY*dpr; });
+  let last=0;
+  function loop(ts){
+    raf=requestAnimationFrame(loop);
+    if(ts-last<33) return;                       // ~30fps is plenty for drifting dots
+    last=ts;
+    if(document.body.classList.contains("nav-open")) return;   // covered, skip work
+    if(document.getElementById("sheet").classList.contains("open")) return;
+    draw();
+  }
+  addEventListener("resize",size,{passive:true});
+  addEventListener("pointermove",e=>{ ms.x=e.clientX*dpr; ms.y=e.clientY*dpr; },{passive:true});
   document.addEventListener("visibilitychange",()=>{ if(document.hidden){cancelAnimationFrame(raf);raf=null;} else if(!reduced&&S.wallpaper&&!raf) loop(); });
-  size(); reduced?draw():loop();
+  size(); reduced?draw():requestAnimationFrame(loop);
 }
 
 /* ================= boot ================= */
@@ -2529,6 +2759,8 @@ function wallpaper(){
   await load();
   applyLook();
   wireGlobal();
+  wireSheetDrag();
+  wireDrawerDrag();
   cursor=todayKey();
   render();
   wallpaper();
