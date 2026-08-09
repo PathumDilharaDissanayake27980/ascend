@@ -1,4 +1,4 @@
-# Ascend — Android build
+# Ascend, Android build
 
 This produces a real, installable APK with background daily notifications.
 You do **not** need Android Studio, a fast laptop, or any local setup.
@@ -25,10 +25,10 @@ GitHub builds it for you, free.
    If it doesn't, click **Build APK** in the left sidebar, then **Run workflow**.
 
 4. Wait ~5 minutes for the green tick. Click the run, scroll to **Artifacts**,
-   and download **elite-roadmap-apk**. Unzip it — inside is `app-debug.apk`.
+   and download **elite-roadmap-apk**. Unzip it, inside is `app-debug.apk`.
 
 5. Copy the APK to your phone. Open it. Android will warn about installing from
-   an unknown source — allow it for your file manager, then install.
+   an unknown source, allow it for your file manager, then install.
    (This warning is normal for any app not from the Play Store. It's your own build,
    from your own repo, and you can read every line of source in this folder.)
 
@@ -57,7 +57,7 @@ The app schedules **one Android alarm per timetable slot**, a week ahead, and re
 them automatically after a reboot or an app update. They fire with the app closed.
 
 On first launch, allow notifications. On Android 12 and newer you may also be asked to
-allow **exact alarms** — without it Android is free to fire reminders up to five minutes
+allow **exact alarms**, without it Android is free to fire reminders up to five minutes
 late. The Settings screen shows an "Allow exact alarms" button if the permission is missing.
 
 Battery optimisation can still delay alarms on some phones (Xiaomi, Oppo, Samsung are the
@@ -65,6 +65,15 @@ usual offenders). If reminders drift, find your phone's battery settings and set
 to **unrestricted**.
 
 ---
+
+## AI tutor
+
+Open Settings inside the app and paste a **Google AI Studio key** (free, no credit
+card: aistudio.google.com/apikey). Tap Save. The key is stored on the device in two
+places - the WebView's storage and the app's own private preferences - so it survives
+app restarts and even a WebView storage wipe.
+
+Keys are never included when you use **Save copy** to share the file with someone.
 
 ## Keeping your progress safe
 
@@ -84,7 +93,7 @@ want to lose to a factory reset.
 
 Replace `app/src/main/assets/index.html` with a newer version, bump
 `versionCode` in `app/build.gradle`, and push. Actions rebuilds the APK.
-Install it over the old one — your saved progress stays, because the
+Install it over the old one, your saved progress stays, because the
 package name and signing key are unchanged.
 
 ---
@@ -93,9 +102,9 @@ package name and signing key are unchanged.
 
 Open the failed run in the Actions tab and read the red step. The two common causes:
 
-- **`.github/workflows/build-apk.yml` missing** — the web uploader dropped the dot-folder.
+- **`.github/workflows/build-apk.yml` missing**, the web uploader dropped the dot-folder.
   Create the file manually as described in step 2.
-- **SDK licence errors** — re-run the workflow; the setup action usually resolves it
+- **SDK licence errors**, re-run the workflow; the setup action usually resolves it
   on a second attempt.
 
 The full build log is yours to read. That's the point of building it this way

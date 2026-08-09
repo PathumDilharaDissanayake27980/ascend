@@ -99,6 +99,21 @@ public class MainActivity extends Activity {
             runOnUiThread(new Runnable() { public void run() { askExactAlarms(); } });
         }
 
+
+        /** Second copy of the app state, outside the WebView, so it survives
+         *  the system clearing WebView storage. */
+        @JavascriptInterface
+        public void store(String key, String value) {
+            getSharedPreferences("roadmap_state", Context.MODE_PRIVATE)
+                    .edit().putString(key, value).apply();
+        }
+
+        @JavascriptInterface
+        public String load(String key) {
+            return getSharedPreferences("roadmap_state", Context.MODE_PRIVATE)
+                    .getString(key, null);
+        }
+
         @JavascriptInterface
         public boolean isNative() { return true; }
     }
