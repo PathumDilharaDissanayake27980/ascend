@@ -292,6 +292,38 @@ label.fl{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}
 .presetrow span{font-size:11.5px;color:var(--faint);flex:1 1 auto}
 @media (max-width:420px){ .calcell{min-height:50px} .calcell .cd{font-size:12px} }
 
+.trackcard{display:block;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:10px;cursor:pointer;color:var(--text);transition:.18s}
+.trackcard:hover{border-color:var(--line2);transform:translateY(-1px)}
+.tc-top{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.tc-top b{font-family:'Space Grotesk',sans-serif;font-size:14.5px;font-weight:600;flex:1 1 auto}
+.tc-frac{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--faint)}
+.tc-bar{height:6px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.tc-bar i{display:block;height:100%;border-radius:9px}
+.tc-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--faint);margin-top:7px}
+.guide{background:var(--panel2);border:1px solid var(--line);border-left:2px solid var(--accent);border-radius:10px;padding:12px 14px;margin-bottom:14px}
+.guide b{display:block;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:3px}
+.guide p{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:9px}
+.guide p:last-child{margin-bottom:0}
+.guide.sm{margin:10px 0}
+.guide.sm p{font-size:12.5px}
+.course{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;overflow:hidden}
+.course-h{display:flex;align-items:center;gap:9px;width:100%;background:transparent;border:0;color:var(--text);padding:12px 13px;cursor:pointer;text-align:left}
+.course-h:hover{background:var(--raise)}
+.course-h b{flex:1 1 auto;font-size:13.5px;font-weight:500}
+.chev{color:var(--faint);font-size:11px;flex:0 0 10px}
+.c-frac{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--faint)}
+.c-frac.full{color:var(--ok)}
+.course-d{font-size:12.8px;color:var(--muted);line-height:1.55;padding:0 13px 10px}
+.course .reflink{margin:0 13px 10px}
+.lessons{padding:0 6px 8px}
+.lesson{display:flex;align-items:flex-start;gap:9px;padding:7px 8px;border-radius:8px;font-size:13.5px}
+.lesson:hover{background:var(--raise)}
+.lesson span{flex:1 1 auto;cursor:pointer;line-height:1.4}
+.lesson.d span{color:var(--faint);text-decoration:line-through}
+.tick.sm{width:18px;height:18px;border-radius:6px;margin-top:2px}
+.tick.sm:checked::after{left:5px;top:2px;width:4px;height:8px}
+.lesson-d{font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:10px}
+
 /* toast */
 #toast{
   position:fixed;left:50%;bottom:24px;transform:translate(-50%,16px);z-index:60;
@@ -302,6 +334,199 @@ label.fl{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 .empty{text-align:center;color:var(--faint);padding:34px 10px;font-size:13.5px}
 mark{background:rgba(255,180,84,.3);color:var(--text);border-radius:3px;padding:0 2px}
+
+
+/* ============ modern pass ============ */
+:root{
+  --bg:#070B14;
+  --panel:rgba(21,30,50,.66);
+  --panel2:rgba(13,20,36,.72);
+  --raise:rgba(32,44,71,.72);
+  --line:rgba(140,170,220,.13);
+  --line2:rgba(140,170,220,.26);
+  --text:#E6EDF9;
+  --muted:#97A9C6;
+  --faint:#647busy;
+  --faint:#6478A0;
+  --r:18px;
+  --shadow:0 18px 48px rgba(0,0,0,.42);
+  --glass:saturate(150%) blur(18px);
+}
+body{
+  background:
+    radial-gradient(1100px 620px at 82% -8%, rgba(255,180,84,.10), transparent 62%),
+    radial-gradient(900px 560px at -6% 8%, rgba(111,167,255,.11), transparent 60%),
+    radial-gradient(760px 520px at 50% 112%, rgba(199,146,234,.08), transparent 60%),
+    var(--bg);
+  letter-spacing:-.005em;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* header ------------------------------------------------ */
+header{
+  background:linear-gradient(180deg, rgba(10,15,27,.86), rgba(7,11,20,.62));
+  backdrop-filter:var(--glass); -webkit-backdrop-filter:var(--glass);
+  border-bottom:1px solid rgba(140,170,220,.1);
+}
+.hbar{padding:12px 16px 10px}
+.htitle b{font-size:17px;letter-spacing:-.02em}
+.htitle span{font-size:10px;opacity:.85}
+.iconbtn{
+  width:42px;height:42px;border-radius:13px;
+  background:linear-gradient(180deg, rgba(45,60,92,.5), rgba(24,34,56,.5));
+  border:1px solid var(--line);
+}
+.iconbtn:active{transform:scale(.94)}
+.pill{
+  border-radius:999px;padding:7px 12px;font-size:11px;
+  background:linear-gradient(180deg, rgba(45,60,92,.42), rgba(20,29,49,.42));
+  border:1px solid var(--line);backdrop-filter:blur(8px);
+}
+.tabsbar{padding:0 12px 10px;gap:5px}
+.vtab{
+  border-radius:11px;padding:8px 15px;font-size:13px;font-weight:500;letter-spacing:-.01em;
+  transition:background .2s cubic-bezier(.22,1,.36,1), color .2s, transform .16s;
+}
+.vtab:active{transform:scale(.96)}
+.vtab.on{
+  background:linear-gradient(180deg, rgba(58,76,116,.62), rgba(31,43,70,.62));
+  border-color:var(--line2);
+  box-shadow:0 3px 12px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+/* surfaces ---------------------------------------------- */
+.card,.trackcard,.course,.wday,.offday,.preview,.guide{
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+}
+.card{
+  border-radius:var(--r);padding:18px;
+  background:linear-gradient(160deg, rgba(28,39,63,.6), rgba(15,22,39,.6));
+  box-shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 10px 30px rgba(0,0,0,.22);
+}
+.card h3{font-size:14.5px;letter-spacing:-.01em;margin-bottom:12px}
+.dayhead h2{font-size:26px;letter-spacing:-.025em;font-weight:600}
+.summary{
+  border-radius:var(--r);padding:18px;
+  background:linear-gradient(150deg, rgba(255,180,84,.10), rgba(111,167,255,.07) 55%, rgba(199,146,234,.06));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 10px 34px rgba(0,0,0,.24);
+}
+.mini div b{font-size:19px;letter-spacing:-.02em}
+.ringtxt b{font-size:20px;letter-spacing:-.02em}
+.rfg{filter:drop-shadow(0 0 6px rgba(255,180,84,.45))}
+
+/* slots -------------------------------------------------- */
+.slot{
+  border-radius:15px;padding:12px 13px;margin-bottom:9px;gap:12px;
+  background:linear-gradient(150deg, rgba(27,38,62,.6), rgba(14,21,38,.6));
+  border-color:rgba(140,170,220,.11);
+  box-shadow:0 4px 16px rgba(0,0,0,.18);
+  transition:transform .2s cubic-bezier(.22,1,.36,1), border-color .2s, box-shadow .2s, opacity .2s;
+}
+.slot:active{transform:scale(.995)}
+.slot:hover{box-shadow:0 8px 26px rgba(0,0,0,.3)}
+.slot.now{
+  border-color:rgba(255,180,84,.55);
+  box-shadow:0 0 0 1px rgba(255,180,84,.22), 0 10px 30px rgba(255,180,84,.10);
+}
+.sbar{width:4px;border-radius:4px;opacity:.9}
+.stitle{font-size:14.5px;letter-spacing:-.01em;font-weight:500}
+.stag{font-size:9px;letter-spacing:.14em;opacity:.95}
+.stime b{font-size:12px;letter-spacing:-.01em}
+.tick{width:24px;height:24px;border-radius:8px;border-width:1.5px;transition:transform .18s cubic-bezier(.34,1.56,.64,1),background .18s}
+.tick:checked{animation:pop .3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{50%{transform:scale(1.22)}}
+.tick:checked::after{left:8px;top:4px}
+.grip{width:30px;height:30px;border-radius:9px}
+.slot.drag{box-shadow:0 22px 46px rgba(0,0,0,.55);border-color:var(--accent)}
+
+/* buttons ------------------------------------------------ */
+.dbtn,.gbtn,.chip,.sbtn,.tool-btn{
+  border-radius:12px;
+  transition:transform .16s cubic-bezier(.22,1,.36,1), background .2s, border-color .2s, color .2s;
+}
+.dbtn:active,.gbtn:active,.chip:active,.sbtn:active{transform:scale(.96)}
+.dbtn{padding:9px 14px;font-size:13px;background:linear-gradient(180deg, rgba(42,57,89,.5), rgba(20,29,49,.5))}
+.dbtn.primary{
+  background:linear-gradient(180deg, rgba(255,180,84,.24), rgba(255,180,84,.12));
+  border-color:rgba(255,180,84,.5);
+  box-shadow:0 4px 16px rgba(255,180,84,.14);
+}
+.gbtn{padding:8px 13px;border-radius:11px}
+.gbtn.solid{box-shadow:0 5px 18px rgba(255,180,84,.24)}
+.sbtn{padding:13px 14px;border-radius:14px;background:linear-gradient(160deg, rgba(34,47,75,.6), rgba(17,25,44,.6))}
+.sbtn:hover{border-color:var(--line2)}
+
+/* sheet -------------------------------------------------- */
+.sheet{
+  border-radius:26px 26px 0 0;padding:14px 18px calc(26px + env(safe-area-inset-bottom));
+  background:linear-gradient(180deg, rgba(26,36,59,.94), rgba(13,19,34,.97));
+  backdrop-filter:var(--glass);border-top:1px solid var(--line2);
+  box-shadow:0 -24px 70px rgba(0,0,0,.6);
+}
+.sheet h4{font-size:18px;letter-spacing:-.02em}
+.sheet .handle{width:44px;height:5px;border-radius:99px;margin-bottom:16px;background:rgba(140,170,220,.32)}
+
+/* library ------------------------------------------------ */
+.trackcard{border-radius:var(--r);padding:16px;background:linear-gradient(160deg, rgba(28,39,63,.58), rgba(15,22,39,.58))}
+.trackcard:active{transform:scale(.985)}
+.tc-top b{font-size:15px;letter-spacing:-.015em}
+.tc-bar{height:7px;border-radius:99px}
+.tc-bar i{box-shadow:0 0 10px currentColor}
+.course{border-radius:16px;background:linear-gradient(160deg, rgba(26,36,59,.55), rgba(14,21,38,.55))}
+.course-h{padding:14px}
+.guide{border-radius:14px;border-left-width:3px}
+.lesson{border-radius:10px;padding:8px 9px}
+
+/* calendar ----------------------------------------------- */
+.calcell{
+  border-radius:13px;min-height:60px;
+  background:linear-gradient(160deg, rgba(27,38,62,.55), rgba(14,21,38,.55));
+  transition:transform .16s cubic-bezier(.22,1,.36,1), background .2s, border-color .2s;
+}
+.calcell:active{transform:scale(.93)}
+.calcell.sel{
+  background:linear-gradient(160deg, rgba(255,180,84,.26), rgba(255,180,84,.12));
+  box-shadow:0 6px 20px rgba(255,180,84,.18);
+}
+.calcell.today{box-shadow:0 0 0 1px rgba(255,180,84,.3)}
+.calcell .cd{font-size:14px;letter-spacing:-.02em}
+
+/* week --------------------------------------------------- */
+.wday{border-radius:16px;background:linear-gradient(160deg, rgba(27,38,62,.55), rgba(14,21,38,.55))}
+.witem{border-radius:9px;padding:6px 8px}
+.witem:active{background:var(--raise)}
+
+/* inputs ------------------------------------------------- */
+input[type=text],input[type=time],input[type=date],input[type=number],select,textarea{
+  border-radius:12px;padding:11px 13px;background:rgba(11,17,31,.7);
+}
+input:focus,select:focus,textarea:focus{box-shadow:0 0 0 3px rgba(111,167,255,.16)}
+
+/* toast -------------------------------------------------- */
+#toast{
+  border-radius:14px;padding:13px 18px;
+  background:linear-gradient(180deg, rgba(38,52,82,.96), rgba(22,31,52,.96));
+  backdrop-filter:var(--glass);box-shadow:0 16px 42px rgba(0,0,0,.55);
+}
+
+/* bottom nav (mobile) ------------------------------------ */
+.bnav{
+  display:none;position:fixed;left:0;right:0;bottom:0;z-index:28;
+  padding:7px 8px calc(7px + env(safe-area-inset-bottom));
+  background:linear-gradient(180deg, rgba(12,18,32,.82), rgba(7,11,20,.96));
+  backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);
+  border-top:1px solid rgba(140,170,220,.12);
+}
+.bnav-in{display:flex;gap:2px;max-width:520px;margin:0 auto}
+.bitem{
+  flex:1;background:none;border:0;color:var(--faint);cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 2px 5px;
+  font-size:9.5px;font-weight:500;letter-spacing:.01em;border-radius:12px;
+  transition:color .2s, background .2s, transform .16s;
+}
+.bitem svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.bitem:active{transform:scale(.92)}
+.bitem.on{color:var(--accent);background:rgba(255,180,84,.1)}
 
 @media (max-width:900px){
   .wrap{grid-template-columns:1fr;padding:14px 12px 90px;gap:0}
@@ -318,6 +543,41 @@ mark{background:rgba(255,180,84,.3);color:var(--text);border-radius:3px;padding:
 }
 @media (min-width:901px){ .scrim{display:none} }
 @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
+
+@media (max-width:900px){
+  .bnav{display:block}
+  .tabsbar{display:none}
+  .wrap{padding-bottom:104px}
+  .sheet{max-height:82vh}
+  #toast{bottom:88px}
+  .hbar{padding:11px 14px}
+  .dayhead h2{font-size:23px}
+  .card{padding:16px}
+  .calcell{min-height:56px}
+}
+@media (min-width:901px){ .bnav{display:none} }
+
+/* polish pass */
+.dayhint{margin-bottom:16px;font-size:12px;line-height:1.5}
+.daybar{gap:8px;margin-bottom:10px}
+.summary{margin-bottom:16px}
+.mini{gap:14px}
+.mini div span{font-size:9px;letter-spacing:.08em;opacity:.9}
+.nowline{background:linear-gradient(90deg,var(--accent),transparent);height:2px;margin:6px 0 12px}
+.nowline::after{font-size:8.5px;letter-spacing:.14em;top:-15px}
+.stime{flex:0 0 54px}
+.ssub{font-size:11px;opacity:.85;margin-top:3px}
+.sheet .meta{font-size:11.5px;margin-bottom:16px;opacity:.9}
+.sgrid{gap:9px}
+.sbtn small{margin-top:3px;line-height:1.35}
+.reflink{border-radius:12px;padding:11px 14px;font-size:13px}
+.callegend{margin-bottom:16px;opacity:.9}
+.calgrid{gap:6px}
+.calhd{font-size:9px;opacity:.8}
+.empty,.hint{line-height:1.55}
+.offday{border-radius:var(--r);padding:34px 18px;background:linear-gradient(160deg, rgba(28,39,63,.5), rgba(15,22,39,.5))}
+.offday b{font-size:20px;letter-spacing:-.02em}
+h2,h3,h4,.tc-top b,.stitle{text-wrap:balance}
 </style>
 </head>
 <body>
@@ -338,7 +598,7 @@ mark{background:rgba(255,180,84,.3);color:var(--text);border-radius:3px;padding:
     <button class="vtab on" data-v="today">Today</button>
     <button class="vtab" data-v="week">Week</button>
     <button class="vtab" data-v="calendar">Calendar</button>
-    <button class="vtab" data-v="tracks">Tracks</button>
+    <button class="vtab" data-v="tracks">Learn</button>
     <button class="vtab" data-v="search">Search</button>
     <button class="vtab" data-v="settings">Settings</button>
   </div>
@@ -349,6 +609,7 @@ mark{background:rgba(255,180,84,.3);color:var(--text);border-radius:3px;padding:
   <main id="main"></main>
 </div>
 
+<nav class="bnav" id="bnav"><div class="bnav-in"><button class="vtab bitem on" data-v="today"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 11h18"/><circle cx="12" cy="16" r="1.6" fill="currentColor" stroke="none"/></svg><span>Today</span></button><button class="vtab bitem" data-v="week"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 10h18M9 10v11M15 10v11"/></svg><span>Week</span></button><button class="vtab bitem" data-v="calendar"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 11h18M7.5 15h2M11 15h2M14.5 15h2M7.5 18h2M11 18h2"/></svg><span>Calendar</span></button><button class="vtab bitem" data-v="tracks"><svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H19v3H6.5A2.5 2.5 0 0 1 4 20.5zM9 7h6M9 11h4"/></svg><span>Learn</span></button><button class="vtab bitem" data-v="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><span>Search</span></button></div></nav>
 <div class="sheet" id="sheet"><div class="handle"></div><div id="sheetbody"></div></div>
 <div id="toast"></div>
 
@@ -357,6 +618,9 @@ const POOLS = {"se": [{"t": "Imperative vs declarative", "c": "CS & Programming 
 const REF = {"Python for AI": ["Python for Everybody", "https://www.py4e.com/"], "NumPy": ["NumPy absolute beginners", "https://numpy.org/doc/stable/user/absolute_beginners.html"], "Linear Algebra for ML": ["3Blue1Brown: Essence of Linear Algebra", "https://www.youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab"], "Calculus & Optimisation": ["Gradient descent, visually", "https://www.youtube.com/results?search_query=gradient+descent+explained+visually"], "Probability & Statistics for ML": ["StatQuest", "https://www.youtube.com/@statquest"], "Classical ML: Supervised": ["scikit-learn User Guide", "https://scikit-learn.org/stable/user_guide.html"], "Classical ML: Unsupervised": ["scikit-learn clustering guide", "https://scikit-learn.org/stable/modules/clustering.html"], "Model Evaluation & Tuning": ["Google ML Crash Course", "https://developers.google.com/machine-learning/crash-course"], "Feature Engineering": ["Kaggle Learn: Feature Engineering", "https://www.kaggle.com/learn/feature-engineering"], "Deep Learning Foundations": ["3Blue1Brown: Neural Networks", "https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi"], "PyTorch": ["Official PyTorch tutorials", "https://pytorch.org/tutorials/"], "Computer Vision": ["CS231n lecture notes", "https://cs231n.github.io/"], "NLP & Sequence Models": ["Hugging Face NLP Course", "https://huggingface.co/learn/nlp-course"], "Transformers & LLMs": ["The Illustrated Transformer", "https://jalammar.github.io/illustrated-transformer/"], "LLM Engineering & RAG": ["LangChain docs", "https://python.langchain.com/docs/introduction/"], "MLOps": ["Made With ML", "https://madewithml.com/"], "Responsible & Applied AI": ["Google Responsible AI practices", "https://ai.google/responsibility/responsible-ai-practices/"], "Analytics Foundations": ["Kaggle Learn", "https://www.kaggle.com/learn"], "SQL for Analytics": ["Mode SQL Tutorial", "https://mode.com/sql-tutorial/"], "Pandas": ["Pandas User Guide", "https://pandas.pydata.org/docs/user_guide/index.html"], "Data Visualisation": ["Storytelling with Data", "https://www.storytellingwithdata.com/blog"], "Statistics & Experimentation": ["A/B testing course", "https://www.youtube.com/results?search_query=ab+testing+statistics+course"], "BI & Reporting Tools": ["Power BI learning", "https://learn.microsoft.com/power-bi/"], "Data Engineering Foundations": ["Data Engineering Zoomcamp", "https://github.com/DataTalksClub/data-engineering-zoomcamp"], "Warehousing & Modelling": ["dbt docs", "https://docs.getdbt.com/"], "Orchestration & Spark": ["Airflow docs", "https://airflow.apache.org/docs/"], "Streaming & Real-Time": ["Kafka documentation", "https://kafka.apache.org/documentation/"], "Analytics Engineering & Business": ["Locally Optimistic blog", "https://locallyoptimistic.com/"]};
 /* templates are built by defTmpl() below */
 /* ================= tracks ================= */
+const COURSEDESC = {"CS & Programming Concepts · Paradigms": "The major styles of expressing computation, and why a codebase feels the way it does.", "CS & Programming Concepts · Type Systems": "How a language decides what a value is, and what it stops you doing wrong.", "CS & Programming Concepts · Memory & Execution": "Where your data physically lives, who frees it, and how source becomes a running process.", "CS & Programming Concepts · Concurrency Concepts": "The vocabulary for doing more than one thing at a time, before you touch a single thread.", "CS & Programming Concepts · Data Representation": "How numbers, text, and structures are actually stored as bits — the source of most 'weird' bugs.", "CS & Programming Concepts · Machine Fundamentals": "Just enough hardware to explain why identical algorithms can differ 10x in speed.", "CS & Programming Concepts · Math for Engineers": "The specific mathematics engineers actually use: logic, counting, graphs, probability.", "CS & Programming Concepts · Cross-Cutting Skills": "Skills that pay off in every module: regex, docs, and contrasting a second language with Java.", "Java · Language Basics": "Syntax, types, and strings — the ground floor you should never have to think about again.", "Java · OOP in Java": "Modeling with classes and interfaces, plus the contracts (equals/hashCode) everyone gets wrong.", "Java · Exceptions": "Failure as a design decision: what to catch, what to propagate, what to never swallow.", "Java · Generics": "Type-safe containers and the wildcard rules that confuse most working developers.", "Java · Collections Framework": "The data structures you'll use daily, and the internals that explain their performance.", "Java · Java 8+ Functional": "Lambdas, streams, and Optional — modern Java style, plus the pitfalls of overusing it.", "Java · Concurrency": "Threads, locks, memory visibility, and executors. The hardest and most valuable part of Java.", "Java · JVM Internals": "Classloading, memory areas, JIT, and garbage collection — what to know when production slows down.", "Java · I/O, Reflection & More": "Files, NIO, reflection, and annotations: the machinery frameworks are built from.", "Java · Build & Tooling": "Maven and Gradle, dependency resolution, and static analysis in your build.", "Java · Spring & Ecosystem": "Spring Boot, JPA, security, and the cloud stack — where most Java jobs actually live.", "Java · Milestones": "Proof of competence. These are weeks of work each, not afternoon tasks.", "DSA · Complexity Analysis": "How to say why one solution beats another, in the language interviewers expect.", "DSA · Linear Structures": "Arrays, lists, stacks, queues — plus monotonic variants that trivialize hard problems.", "DSA · Hashing": "Hash tables from the inside: collisions, load factor, and designing good keys.", "DSA · Trees": "Every tree worth knowing, from BSTs to segment trees and tries.", "DSA · Graphs": "Graph representations and the full algorithm set — the richest source of hard problems.", "DSA · Sorting & Searching": "Every sort, when each wins, and binary search including the tricky variants.", "DSA · Core Patterns": "The recurring shapes: two pointers, sliding window, prefix sums, top-K, intervals.", "DSA · Backtracking": "Systematic exhaustive search with pruning — one template, many problems.", "DSA · Dynamic Programming": "The largest section for a reason. Learn the states, not the answers.", "DSA · Strings": "Pattern matching algorithms and the string problems built on frequency counting.", "DSA · Bit Manipulation": "Bit tricks that turn O(n) work into single instructions.", "DSA · Math Algorithms": "Number theory that shows up constantly in contests and occasionally in production.", "DSA · Advanced Structures": "Structures worth building once yourself: LRU, bloom filters, sparse tables.", "DSA · Practice Standards": "The bar. Volume plus spaced repetition plus timed practice — no shortcuts exist here.", "Databases · SQL Mastery": "SQL until it's second nature, including window functions and CTEs most developers avoid.", "Databases · Design & Modeling": "Turning a problem domain into tables that won't fight you in a year.", "Databases · Indexes & Performance": "Why a query is slow and how to prove it with EXPLAIN rather than guessing.", "Databases · Transactions & Internals": "ACID, isolation levels, locking, and MVCC — the concurrency story of databases.", "Databases · PostgreSQL & MySQL": "Deep knowledge of the two engines you'll actually meet, plus migrations.", "Databases · NoSQL": "When a document, key-value, or wide-column store beats a relational one — and when it doesn't.", "Databases · Scaling Data": "Replication, sharding, and caching: what happens when one database is no longer enough.", "Operating Systems · Processes & Threads": "What a process actually is, and the true cost of a context switch.", "Operating Systems · Scheduling": "How the CPU decides who runs next, and why your task waited.", "Operating Systems · Synchronization": "Locks, semaphores, deadlock — the classic problems, since you'll rebuild them in Java.", "Operating Systems · Memory Management": "Virtual memory, paging, and page faults: the reason 'out of memory' is subtler than it sounds.", "Operating Systems · Storage & File Systems": "Inodes, journaling, and disks — how files survive a crash.", "Operating Systems · I/O & More": "Interrupts, epoll, signals, and IPC — the foundation under every server you'll write.", "Networking · Models & Link Layer": "The layered model, with a concrete example at each layer instead of memorized names.", "Networking · IP Layer": "Addressing, subnetting, NAT, and routing — practice the CIDR math until it's fast.", "Networking · Transport Layer": "TCP handshakes, windows, congestion control, and when UDP is the right answer.", "Networking · DNS": "How a name becomes an address, and the caching layers that make it stale.", "Networking · HTTP & Web Protocols": "HTTP in real depth: status codes, caching, CORS, HTTP/2 and 3, WebSockets.", "Networking · TLS & Infrastructure": "TLS, certificates, proxies, load balancers, and CDNs — the infrastructure around your app.", "Networking · Tools & Practice": "Prove it hands-on: curl, dig, tcpdump, Wireshark, and a TCP server you wrote yourself.", "Linux & Bash · Foundations": "Navigating the filesystem and understanding where things live and why.", "Linux & Bash · Permissions & Users": "Ownership and permission bits, including the ones that cause security incidents.", "Linux & Bash · Text Processing": "grep, sed, awk, find, jq — turning logs and text into answers.", "Linux & Bash · Pipes & Redirection": "Redirection and pipes: composing small tools into exactly the thing you need.", "Linux & Bash · Processes & Services": "Managing running processes, signals, systemd services, and cron jobs.", "Linux & Bash · System & Disk": "Disk, memory, load average, and the tools to find what's consuming them.", "Linux & Bash · Networking on Linux": "Networking from the shell: ss, ssh keys, tunnels, rsync, firewalls.", "Linux & Bash · Bash Scripting": "Real scripting with error handling and quoting done correctly — most scripts are subtly broken.", "Linux & Bash · Power Tools": "tmux, vim, and modern replacements that make you fast on any machine.", "Git & Version Control · Core": "The object model — once you see the DAG, every command stops being magic.", "Git & Version Control · Branching & Merging": "Branching, merging, and rebasing, including resolving conflicts without panic.", "Git & Version Control · Undo & Recovery": "reset, revert, and reflog: how to undo anything, including things that look lost.", "Git & Version Control · Remotes & Collaboration": "Working with others: remotes, pull requests, reviews, and safe force-pushing.", "Git & Version Control · Workflows & Advanced": "Team workflows, conventional commits, bisect, hooks, and the monorepo debate.", "Web & APIs · How the Web Works": "What actually happens between a URL and a rendered page, plus enough JS to be dangerous.", "Web & APIs · REST API Design": "Resource design, status codes, idempotency, pagination, versioning, and error shapes.", "Web & APIs · Auth": "Sessions, JWTs, OAuth2, and OIDC — the area where mistakes become breaches.", "Web & APIs · Beyond REST": "GraphQL, gRPC, and webhooks: when REST is the wrong tool, and how to spec an API.", "Web & APIs · API Operations": "Rate limits, gateways, caching, contract tests, and deprecating without breaking clients.", "System Design · Fundamentals": "Scaling, availability, and estimation. Learn to do the arithmetic out loud, roughly and fast.", "System Design · Building Blocks": "The reusable components — load balancers, caches, queues, storage — and when each earns its place.", "System Design · Async & Messaging": "Queues, Kafka, and event-driven design, including the delivery guarantees people misquote.", "System Design · Resilience Patterns": "How systems survive partial failure: timeouts, retries, circuit breakers, backpressure.", "System Design · Classic Designs (do each as a full mock)": "The canonical problems. Do each one on a whiteboard with a timer, not by reading a solution.", "System Design · Method & Resources": "A repeatable framework, the books worth reading, and the habit of drawing every design.", "Distributed Systems · Theory": "The assumptions that destroy distributed systems, stated precisely — CAP as it really is.", "Distributed Systems · Time & Order": "Why you cannot trust timestamps, and the logical clocks that replace them.", "Distributed Systems · Coordination & Consensus": "Leader election, quorums, Raft, and why distributed locks are more dangerous than they look.", "Distributed Systems · Replication & Partitioning": "Copying and splitting data across nodes, plus conflict resolution and its data loss.", "Distributed Systems · Transactions Across Services": "Two-phase commit, sagas, and getting effectively-once behavior out of at-least-once delivery.", "Distributed Systems · Papers & Systems (read them)": "The original papers. Reading GFS, Dynamo, and Raft directly puts you ahead of most engineers.", "Patterns & Architecture · Principles": "SOLID, coupling, and cohesion: the principles every pattern is trying to satisfy.", "Patterns & Architecture · Creational Patterns": "Patterns for constructing objects, including Singleton and an honest account of its problems.", "Patterns & Architecture · Structural Patterns": "Patterns for composing and wrapping objects — adapters, decorators, proxies, facades.", "Patterns & Architecture · Behavioral Patterns": "Patterns for behavior and communication. Strategy and Observer alone will change how you write code.", "Patterns & Architecture · Enterprise Patterns": "The patterns that dominate real Spring codebases: DI, repositories, DTOs, anti-corruption layers.", "Patterns & Architecture · Architecture Styles": "Layered, hexagonal, clean, microservices, serverless — and the 12-Factor checklist.", "Patterns & Architecture · Domain-Driven Design": "Modeling the business domain properly: bounded contexts, aggregates, ubiquitous language.", "Patterns & Architecture · Code Quality": "Smells, refactoring moves, and anti-patterns. Then rewrite your own old code applying it.", "AWS & Cloud · Foundations": "Regions, availability zones, pricing, and the Well-Architected pillars.", "AWS & Cloud · IAM": "Identity and permissions. Get this wrong and nothing else about your security matters.", "AWS & Cloud · Compute": "EC2, Lambda, containers, and autoscaling — the ways to actually run something.", "AWS & Cloud · Storage": "S3 and friends: storage classes, lifecycle rules, encryption, presigned URLs.", "AWS & Cloud · Databases on AWS": "Managed relational databases, DynamoDB modeling, and caching with ElastiCache.", "AWS & Cloud · Networking on AWS": "VPCs, subnets, routing, Route 53, CloudFront, and API Gateway.", "AWS & Cloud · Messaging & Integration": "SQS, SNS, EventBridge, and Step Functions for decoupling services.", "AWS & Cloud · Ops & Security Services": "CloudWatch, CloudTrail, X-Ray, Secrets Manager, KMS, and cost control.", "AWS & Cloud · IaC & Milestones": "Terraform and CloudFormation, plus the builds that prove you can ship on AWS.", "DevOps · Concepts": "The pipeline model and the metrics that tell you whether delivery is actually healthy.", "DevOps · Docker": "Containers properly: layers, multi-stage builds, small images, and not running as root.", "DevOps · Kubernetes": "Orchestration in real depth — the largest section here, and worth every item.", "DevOps · CI Tools": "GitHub Actions and Jenkins: building a pipeline that tests, scans, builds, and deploys.", "DevOps · Infrastructure as Code": "Terraform and Ansible. Never click through a console for anything you'll need twice.", "DevOps · Delivery & GitOps": "Blue-green, canary, GitOps, and having a rollback plan before you need one.", "DevOps · Observability & SRE": "Metrics, logs, traces, SLOs, alerts, and postmortems — running things, not just shipping them.", "Security · Foundations": "Threat modeling and the vocabulary: risk, exploit, CVE, defense in depth.", "Security · Web Vulnerabilities (OWASP)": "The OWASP catalog, each one understood by exploiting it and then fixing it.", "Security · Auth Security": "Passwords, sessions, tokens, and MFA — where breaches usually actually start.", "Security · Cryptography": "Hashing vs encryption, AES, RSA, HMAC, key management, and never rolling your own.", "Security · Secure Engineering": "Validation, secrets handling, dependency scanning, and security in code review.", "Security · Offense to Learn Defense": "Learn by attacking a legal target. PortSwigger's labs are the single best resource here.", "Security · Governance Awareness": "GDPR, PCI, SOC 2, and disclosure etiquette — awareness, not expertise.", "QA & Testing · Testing Theory": "The vocabulary and the levels of testing, plus writing a bug report worth reading.", "QA & Testing · Test Design Techniques": "Techniques for choosing test cases deliberately instead of by intuition.", "QA & Testing · Unit Testing (Java)": "JUnit, Mockito, AssertJ, TDD, coverage and its limits, and testing time and randomness.", "QA & Testing · Integration Testing": "Testing against real dependencies with Testcontainers instead of pretending with mocks.", "QA & Testing · UI & E2E Automation": "Selenium and Playwright, the Page Object Model, and beating flakiness systematically.", "QA & Testing · API & Performance Testing": "REST Assured, JMeter, k6, and reading percentiles instead of averages.", "QA & Testing · QA in Practice": "Strategy across a whole product: environments, data, CI parallelization, and a framework you built.", "Automation · Python for Automation": "Enough Python to build real tools: not toy syntax, but subprocess, logging, requests, and CLIs.", "Automation · Scripting Projects (build all)": "Ten scripts to actually build. Working code beats tutorials you followed along with.", "Automation · Web Scraping & Browser": "Scraping properly, including dynamic pages, ethics, and robots.txt.", "Automation · Task & Workflow Automation": "Cron, systemd timers, Makefiles, hooks, and workflow tools that run things without you.", "Automation · Release & Dev Automation": "Automating your own development loop: versioning, changelogs, formatting, scaffolding.", "Engineering Practice & Career · Craft": "Debugging method, profiling, logging, design docs, and estimation — daily professional craft.", "Engineering Practice & Career · Collaboration": "Code review, agile ceremonies, and communicating clearly, including with non-engineers.", "Engineering Practice & Career · Portfolio (non-negotiable)": "Four projects and open-source contributions. This is what recruiters can actually verify.", "Engineering Practice & Career · Interview Readiness": "Resume, STAR stories, and mock interviews done out loud with a timer.", "Engineering Practice & Career · Elite Habits": "The habits that keep you improving after the checklist is finished: teaching, reading, rebuilding.", "Python for AI": "Set up a workspace you can trust: environments, notebooks, logging and seeds. Skipping this is why so many ML projects can't be reproduced two weeks later.", "NumPy": "Every ML library sits on ndarray. Broadcasting and axis semantics are the two things that will confuse you for months if you skim them — learn them properly once.", "Linear Algebra for ML": "Not abstract maths: matrices are transformations and embeddings are vectors. Watch 3Blue1Brown for intuition, then implement PCA yourself to prove you have it.", "Calculus & Optimisation": "The chain rule is literally backpropagation. Learn why gradient descent moves the way it does, and what the optimiser names actually change.", "Probability & Statistics for ML": "The language models are written in — likelihood, distributions, entropy. This section also carries most of your data-analyst credibility.", "Classical ML: Supervised": "Start here, not with deep learning. Most real problems are solved by gradient boosting on tabular data, and interviews probe these constantly.", "Classical ML: Unsupervised": "Finding structure without labels. Know k-means and PCA cold; treat t-SNE and UMAP as visualisation tools, not truth.", "Model Evaluation & Tuning": "The most valuable section in the AI track. Anyone can fit a model; knowing whether it actually works, and catching leakage, is the job.", "Feature Engineering": "Where most real accuracy comes from. Learn Pipelines early so your preprocessing travels with the model instead of living in a notebook.", "Deep Learning Foundations": "Build the mental model before touching a framework. Derive backprop by hand once and every library will make sense afterwards.", "PyTorch": "Your daily tool. Write the training loop yourself rather than copying a trainer — debugging shapes and devices is the actual skill.", "Computer Vision": "Convolutions, then transfer learning. In practice you will fine-tune a pretrained model far more often than you design an architecture.", "NLP & Sequence Models": "The pre-transformer lineage. Worth knowing because tokenisation, embeddings and attention all grew out of these problems.", "Transformers & LLMs": "The centre of gravity in AI right now. Read the paper, implement attention from scratch, then learn what fine-tuning, quantisation and RLHF actually do.", "LLM Engineering & RAG": "Where the jobs are. Retrieval, evaluation, cost and latency matter more than prompt tricks — an LLM app is a systems problem.", "MLOps": "Getting a model out of a notebook and keeping it alive: tracking, serving, drift, retraining. This is where your DevOps track pays double.", "Responsible & Applied AI": "Bias, explainability, privacy and knowing when not to use ML. Increasingly asked about in interviews, and genuinely part of doing the work well.", "Analytics Foundations": "How to turn a vague business question into a measurable one, and the traps — Simpson's paradox, survivorship bias — that make confident analyses wrong.", "SQL for Analytics": "The single highest-leverage skill for a data analyst. Window functions, cohorts and funnels are what separate a report writer from an analyst.", "Pandas": "Your everyday tool for cleaning and reshaping. Learn groupby and merge deeply; learn to vectorise instead of looping.", "Data Visualisation": "Choosing the right chart, then annotating it so the insight is unmissable. A chart that needs explaining has failed.", "Statistics & Experimentation": "A/B testing done properly: power, effect size, guardrails, and the discipline not to peek. This is how product decisions get made.", "BI & Reporting Tools": "Excel, Power BI and Tableau are what stakeholders actually open. Fluency here makes your work usable by people who will never run your notebook.", "Data Engineering Foundations": "Pipelines that are idempotent, incremental and observable. Formats and partitioning decide whether your warehouse is fast or expensive.", "Warehousing & Modelling": "Dimensional modelling and dbt. Getting the grain right is the difference between a warehouse people trust and one they work around.", "Orchestration & Spark": "Scheduling work reliably and processing data too big for one machine. Understand shuffles — they explain most slow Spark jobs.", "Streaming & Real-Time": "Event time, windows and late data. Learn it, then learn to ask whether real-time is genuinely worth the complexity.", "Analytics Engineering & Business": "Turning analysis into decisions: scoping, metric governance, cohort and churn work, and writing a memo people actually read."};
+const TRACKGUIDE = {"se": {"how": "Read or watch until you can explain it without notes, then write a small piece of code that uses it. If you cannot produce an example, you have not learned it yet.", "done": "You can explain it to another engineer and give a concrete example from your own code."}, "dsa": {"how": "Learn the pattern, then solve problems with it — 3 to 5 before moving on. Write the code without running it first, then test. Re-solve after two weeks.", "done": "You can solve a fresh problem with this pattern in under 25 minutes without hints."}, "code": {"how": "Type the code yourself; do not copy. Break it deliberately to see the error, then fix it. Keep every snippet in a scratch repo.", "done": "You wrote working code using it, and can explain what the JVM or framework does underneath."}, "ai": {"how": "Get the intuition first (video or diagram), then the maths, then implement the smallest possible version yourself. Notebooks are for experiments, not for learning.", "done": "You implemented or ran it end to end, and can say when you would and would not use it."}, "data": {"how": "Always practise on a real dataset, never toy data. Write the query or transformation yourself, then check it against a second method.", "done": "You produced a correct result on real data and could defend the method to a stakeholder."}, "project": {"how": "Work in small commits. Ship something that runs at the end of the session, even if it is ugly. A broken half-feature is worse than a small working one.", "done": "It runs, it is committed, and the README says how to use it."}, "review": {"how": "Retrieval, not rereading. Close the notes and write down what you remember, then check what you missed. That gap is the point.", "done": "You recalled it cold and corrected whatever you got wrong."}, "career": {"how": "Do it out loud and on a timer. Record yourself if there is no one to practise with — the discomfort is the training.", "done": "You completed it under realistic conditions, not in an idealised version."}};
+
 const TRACKREF = {
   se:["roadmap.sh — backend developer path","https://roadmap.sh/backend"],
   dsa:["NeetCode — patterns & solutions","https://neetcode.io/practice"],
@@ -457,15 +721,42 @@ function save(){
 let uidc=0;
 function uid(){ return "s"+Date.now().toString(36)+(uidc++).toString(36); }
 
+function lkey(track,i){ return track+"|"+i; }
+function isLessonDone(track,i){ return !!(S.ldone && S.ldone[lkey(track,i)]); }
+function poolItem(track,i){
+  const raw=(POOLS[track]||[])[i];
+  return (typeof raw==="string")?{t:raw,c:""}:(raw||{t:"",c:""});
+}
+/* indices still to be studied, in order */
+function remainingIdx(track){
+  const pool=POOLS[track]||[];
+  const out=[];
+  for(let i=0;i<pool.length;i++){ if(!isLessonDone(track,i)) out.push(i); }
+  return out;
+}
+function doneCount(track){
+  const pool=POOLS[track]||[];
+  let n=0;
+  for(let i=0;i<pool.length;i++){ if(isLessonDone(track,i)) n++; }
+  return n;
+}
+/* n = this track's session number since the plan started */
 function lessonAt(track,n){
   const pool=POOLS[track];
   if(!pool||!pool.length) return {t:TRACKS[track]?TRACKS[track].n:track,c:""};
-  const len=pool.length, pass=Math.floor(n/len), i=n%len;
-  const raw=pool[i];
-  const item=(typeof raw==="string")?{t:raw,c:""}:raw;
-  if(pass===0) return {t:item.t,c:item.c};
+  const rem=remainingIdx(track);
+  if(!rem.length){
+    // everything studied once — cycle the whole pool as revision
+    const i=n%pool.length, it=poolItem(track,i);
+    return {t:"Review: "+it.t, c:it.c, idx:i, pass:1};
+  }
+  // n counts this track's sessions from today, so it points straight at what is left
+  const pass=Math.floor(n/rem.length);
+  const i=rem[n%rem.length];
+  const it=poolItem(track,i);
+  if(pass===0) return {t:it.t, c:it.c, idx:i};
   const label = pass===1 ? "Review: " : "Deepen ("+(pass+1)+"x): ";
-  return {t:label+item.t, c:item.c, pass};
+  return {t:label+it.t, c:it.c, idx:i, pass};
 }
 
 const DAYTYPES=[
@@ -582,10 +873,11 @@ function studyCount(dateKey){ return structure(dateKey).filter(b=>b.k==="study")
 function orderOf(dateKey){ const t=tmplFor(dateKey); return (t&&t.order&&t.order.length)?t.order:["se"]; }
 
 /* cumulative count of each track's sessions before dateKey */
+function planAnchor(){ const t=todayKey(); return S.start>t ? S.start : t; }
 function ordinals(dateKey){
   if(ORD[dateKey]) return ORD[dateKey];
-  const off=daysBetween(S.start,dateKey);
-  if(off<=0){ const z={}; ORD[dateKey]=z; return z; }
+  const anchor=planAnchor();
+  if(dateKey<=anchor){ const z={}; ORD[dateKey]=z; return z; }
   const prev=addDays(dateKey,-1);
   const base=Object.assign({}, ordinals(prev));
   const ord=orderOf(prev);
@@ -608,7 +900,7 @@ function generateDay(dateKey){
       const track=ord[si%ord.length]; si++;
       const n=base[track]||0; base[track]=n+1;
       const L=lessonAt(track,n);
-      it.k=track; it.title=L.t; it.course=L.c; it.n=n;
+      it.k=track; it.title=L.t; it.course=L.c; it.n=n; if(L.idx!=null) it.li=L.idx;
     }else{
       it.k=b.k; it.title=RESTNAME[b.k]||(TRACKS[b.k]?TRACKS[b.k].n:"Block");
     }
@@ -640,10 +932,12 @@ function doneMins(items){ return items.filter(i=>!REST(i.k)&&i.done).reduce((a,i
 function nextLesson(track, dateKey){
   const pool=POOLS[track]||[];
   if(!pool.length) return {t:TRACKS[track]?TRACKS[track].n:track, c:""};
+  const rem=remainingIdx(track);
+  const list=rem.length?rem:pool.map((_,i)=>i);
   const c=(S.cursors[track]||0); S.cursors[track]=c+1;
-  const idx=((ordinals(dateKey)[track]||0)+c+1)%pool.length;
-  const raw=pool[idx];
-  return (typeof raw==="string")?{t:raw,c:""}:{t:raw.t,c:raw.c};
+  const idx=list[(((ordinals(dateKey)[track]||0)+c)%list.length)];
+  const it=poolItem(track,idx);
+  return {t:it.t, c:it.c, idx};
 }
 
 /* rebuild days that the user has not touched */
@@ -719,7 +1013,7 @@ function paintHeader(){
   $("#p-streak").textContent = streak();
   $("#p-hours").textContent = t.hours;
   $("#p-done").textContent = t.done;
-  const titles={today:"Day Plan", week:"This Week", calendar:"Calendar", tracks:"Tracks", search:"Search", settings:"Settings"};
+  const titles={today:"Day Plan", week:"This Week", calendar:"Calendar", tracks:"Curriculum", search:"Search", settings:"Settings"};
   $("#htitle").textContent = titles[view]||"Ascend";
   const day = daysBetween(S.start, todayKey())+1;
   $("#hsub").textContent = "Day "+Math.max(1,day)+" of 365";
@@ -779,13 +1073,12 @@ function dayBar(k){
   h+='<button class="dbtn" data-daytypequick="off">Day off</button>';
   h+='<button class="dbtn" data-daytypequick="full">Full day</button>';
   h+='<button class="dbtn" data-daymore="1">More &#8230;</button>';
-  h+='<button class="dbtn" data-jump="calendar">Calendar</button>';
   if(custom) h+='<button class="dbtn revert" data-daytypequick="reset">Back to default</button>';
   h+='</div>';
   const dayLabel=DAYNAMES[parseKey(k).getDay()]+" "+prettyDay(k).split(", ")[1];
   h+='<div class="dayhint">'+(custom
       ? "This day runs its own schedule &mdash; your weekly default is untouched."
-      : "Edits here change <b>"+dayLabel+"</b> only. To change every "+DAYNAMES[parseKey(k).getDay()]+", use More &#8230;")+'</div>';
+      : "Changes affect <b>"+dayLabel+"</b> only &mdash; every "+DAYNAMES[parseKey(k).getDay()]+" is under More&#8230;")+'</div>';
   return h;
 }
 
@@ -885,20 +1178,133 @@ function renderWeek(){
 }
 
 /* ================= tracks view ================= */
+/* ================= library (browse & study content) ================= */
+let libTrack=null, libOpen={};
+
+function markLesson(track, idx, on, quiet){
+  if(!S.ldone) S.ldone={};
+  const key=lkey(track,idx);
+  if(on) S.ldone[key]=1; else delete S.ldone[key];
+  clearOrd();
+  const today=todayKey();
+  // history keeps what happened; upcoming days give the slot to the next lesson
+  Object.keys(S.days).forEach(d=>{
+    S.days[d].forEach(it=>{
+      if(it.k!==track || it.li!==idx) return;
+      if(d<today){ it.done=!!on; return; }
+      if(on && !it.done){
+        const L=nextLesson(track,d);
+        it.title=L.t; it.course=L.c; it.li=L.idx; it.done=false;
+      }else if(on){ it.done=true; }
+    });
+  });
+  replanFuture(); save();
+  if(!quiet) syncReminders();
+}
+
+function coursesOf(track){
+  const pool=POOLS[track]||[];
+  const map={}, order=[];
+  pool.forEach((raw,i)=>{
+    const it=(typeof raw==="string")?{t:raw,c:""}:raw;
+    const c=it.c||TRACKS[track].n;
+    if(!map[c]){ map[c]=[]; order.push(c); }
+    map[c].push({i, t:it.t});
+  });
+  return order.map(c=>({name:c, items:map[c]}));
+}
+
 function renderTracks(){
+  if(libTrack) return renderTrackDetail(libTrack);
   const ts=trackStats();
-  let h='<div class="dayhead"><div><h2>Tracks</h2><div class="sub">What you are building, and how far along each one is</div></div></div>';
+  let h='<div class="dayhead"><div><h2>Curriculum</h2><div class="sub">Every lesson in the plan &mdash; tap a track to read, study and tick things off directly</div></div></div>';
   Object.entries(TRACKS).forEach(([k,v])=>{
     if(REST(k)) return;
-    const pool=(POOLS[k]||[]).length, d=ts[k]?ts[k].done:0;
-    const pct=pool?Math.min(100,Math.round(d/pool*100)):0;
-    h+='<div class="card"><h3><span class="dot" style="background:'+v.c+';display:inline-block;width:9px;height:9px;border-radius:3px"></span>'+v.n+' <small>'+d+' / '+pool+' &middot; '+(ts[k]?(ts[k].mins/60).toFixed(1):0)+'h done</small></h3>';
-    h+='<div style="height:7px;background:var(--panel2);border-radius:9px;overflow:hidden;border:1px solid var(--line)"><div style="height:100%;width:'+pct+'%;background:'+v.c+';border-radius:9px"></div></div>';
-    const perWeek = Object.values(S.tmpl).reduce((a,t)=>a+t.slots.filter(s=>s[0]===k).length,0);
-    h+='<div style="font-family:JetBrains Mono,monospace;font-size:10.5px;color:var(--faint);margin-top:8px">'+perWeek+' sessions/week &middot; '+(pool-d>0?(pool-d)+' lessons remaining':'pool complete — now cycling as review')+'</div>';
+    const pool=(POOLS[k]||[]).length, d=doneCount(k);
+    const pct=pool?Math.round(d/pool*100):0;
+    const perWeek=Object.values(S.tmpl).reduce((a,t)=>a+(t.order||[]).filter(x=>x===k).length,0);
+    h+='<button class="trackcard" data-libtrack="'+k+'">';
+    h+='<div class="tc-top"><span class="dot" style="background:'+v.c+'"></span><b>'+v.n+'</b><span class="tc-frac">'+d+' / '+pool+'</span></div>';
+    h+='<div class="tc-bar"><i style="width:'+pct+'%;background:'+v.c+'"></i></div>';
+    h+='<div class="tc-sub">'+coursesOf(k).length+' courses &middot; '+perWeek+' sessions a week &middot; '+(pool-d)+' left</div>';
+    h+='</button>';
+  });
+  mainEl.innerHTML=h;
+}
+
+function renderTrackDetail(track){
+  const v=TRACKS[track], g=TRACKGUIDE[track]||{};
+  const courses=coursesOf(track);
+  const pool=(POOLS[track]||[]).length, d=doneCount(track);
+  let h='<div class="dayhead"><div><h2>'+v.n+'</h2><div class="sub">'+d+' of '+pool+' complete</div></div>';
+  h+='<div class="daynav"><button class="gbtn" data-libback="1">&larr; All tracks</button></div></div>';
+  if(g.how) h+='<div class="guide"><b>How to study this</b><p>'+g.how+'</p><b>Counts as done when</b><p>'+g.done+'</p></div>';
+  courses.forEach((c,ci)=>{
+    const cd=doneCountIn(track,c.items);
+    const open=libOpen[track+"|"+ci];
+    h+='<div class="course">';
+    h+='<button class="course-h" data-libcourse="'+track+'|'+ci+'"><span class="chev">'+(open?"&#9662;":"&#9656;")+'</span><b>'+esc(c.name)+'</b><span class="c-frac'+(cd===c.items.length?" full":"")+'">'+cd+'/'+c.items.length+'</span></button>';
+    if(open){
+      if(COURSEDESC[c.name]) h+='<p class="course-d">'+COURSEDESC[c.name]+'</p>';
+      const ref=REF[c.name]||TRACKREF[track];
+      if(ref) h+='<a class="reflink" href="'+ref[1]+'" target="_blank" rel="noopener">&#9654; '+esc(ref[0])+'</a>';
+      h+='<div class="lessons">';
+      c.items.forEach(it=>{
+        const done=isLessonDone(track,it.i);
+        h+='<div class="lesson'+(done?" d":"")+'">';
+        h+='<input type="checkbox" class="tick sm" data-ltick="'+track+'|'+it.i+'"'+(done?" checked":"")+'>';
+        h+='<span data-lopen="'+track+'|'+it.i+'">'+esc(it.t)+'</span>';
+        h+='</div>';
+      });
+      h+='</div>';
+    }
     h+='</div>';
   });
   mainEl.innerHTML=h;
+}
+function doneCountIn(track, items){ let n=0; items.forEach(it=>{ if(isLessonDone(track,it.i)) n++; }); return n; }
+
+function openLesson(track, idx){
+  const it=poolItem(track,idx);
+  const v=TRACKS[track], g=TRACKGUIDE[track]||{};
+  const done=isLessonDone(track,idx);
+  const ref=REF[it.c]||TRACKREF[track];
+  const when=scheduledOn(track,idx);
+  let h='<h4>'+esc(it.t)+'</h4>';
+  h+='<div class="meta">'+v.n+(it.c?' &middot; '+esc(it.c):'')+'</div>';
+  if(COURSEDESC[it.c]) h+='<p class="lesson-d">'+COURSEDESC[it.c]+'</p>';
+  if(g.how) h+='<div class="guide sm"><b>How to study this</b><p>'+g.how+'</p><b>Counts as done when</b><p>'+g.done+'</p></div>';
+  if(ref) h+='<a class="reflink" href="'+ref[1]+'" target="_blank" rel="noopener">&#9654; '+esc(ref[0])+'</a>';
+  if(when) h+='<div class="hint">Scheduled for '+prettyDay(when)+'.</div>';
+  h+='<div class="sgrid" style="margin-top:10px">';
+  h+='<button class="sbtn" data-lset="'+track+'|'+idx+'|'+(done?0:1)+'">'+(done?"Mark not done":"Mark as done")+'<small>'+(done?"it returns to the schedule":"it drops out of future days")+'</small></button>';
+  if(!done) h+='<button class="sbtn" data-lsched="'+track+'|'+idx+'">Study it next<small>put it in the next free slot</small></button>';
+  h+='<button class="sbtn" data-cancel="1">Close<small>&nbsp;</small></button>';
+  h+='</div>';
+  openSheet(h);
+}
+function scheduledOn(track, idx){
+  const keys=Object.keys(S.days).sort();
+  for(const k of keys){
+    if(k<todayKey()) continue;
+    if(S.days[k].some(it=>it.k===track && it.li===idx && !it.done)) return k;
+  }
+  return null;
+}
+function scheduleNext(track, idx){
+  const it=poolItem(track,idx);
+  for(let d=0; d<14; d++){
+    const k=addDays(todayKey(),d);
+    const items=getDay(k);
+    const slot=items.find(x=>x.k===track && !x.done);
+    if(slot){
+      slot.title=it.t; slot.course=it.c; slot.li=idx; slot.edited=true;
+      save(); closeSheet(); render(); syncReminders();
+      toast("Set for "+prettyDay(k).split(",")[0]+" at "+fmtTime(slot.st)+".");
+      return;
+    }
+  }
+  toast("No "+TRACKS[track].s+" slot in the next two weeks — add one from the day view.");
 }
 
 /* ================= search ================= */
@@ -1524,6 +1930,8 @@ function openItem(id){
   const ref = (it.course && REF[it.course]) || TRACKREF[it.k] || null;
   let h='<h4>'+esc(it.title)+'</h4>';
   h+='<div class="meta">'+T.n+(it.course?' &middot; '+esc(it.course):'')+' &middot; '+fmtTime(it.st)+'–'+fmtTime(it.st+it.m)+' &middot; '+it.m+' min</div>';
+  if(it.course && COURSEDESC[it.course]) h+='<p class="lesson-d">'+COURSEDESC[it.course]+'</p>';
+  if(!REST(it.k) && TRACKGUIDE[it.k]) h+='<div class="guide sm"><b>How to study this</b><p>'+TRACKGUIDE[it.k].how+'</p><b>Counts as done when</b><p>'+TRACKGUIDE[it.k].done+'</p></div>';
   if(ref) h+='<a class="reflink" href="'+ref[1]+'" target="_blank" rel="noopener">&#9654; '+esc(ref[0])+'</a>';
   if(REST(it.k)){
     h+='<p style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Rest is part of the plan, not a gap in it. You can still resize or move this block.</p>';
@@ -1780,7 +2188,7 @@ function wireGlobal(){
       else if(j==="settings") setView("settings");
       return;
     }
-    if((el=hit("data-track"))){ setView("tracks"); return; }
+    if((el=hit("data-track"))){ libTrack=el.dataset.track; setView("tracks"); return; }
     if((el=hit("data-act"))){
       const a=el.dataset.act;
       if(a==="export") exportJSON();
@@ -1811,7 +2219,9 @@ function wireGlobal(){
     if((el=hit("data-tick"))){
       const f=findItem(el.dataset.tick);
       if(f){
-        f.it.done=el.checked; save(); paintHeader();
+        f.it.done=el.checked;
+        if(f.it.li!=null && !REST(f.it.k)) markLesson(f.it.k, f.it.li, el.checked, true);
+        save(); paintHeader();
         const slot=el.closest(".slot");
         if(slot) slot.classList.toggle("done", el.checked);
         updateDayMeter();
@@ -1853,6 +2263,25 @@ function wireGlobal(){
     if((el=hit("data-catch"))){ doCatchUp(el.dataset.catch); return; }
     if(hit("data-range")&&!t.closest("#sheet")){ askRange(); return; }
     if((el=hit("data-range"))&&t.closest("#sheet")){ doRange(el.dataset.range); return; }
+    /* ---- library ---- */
+    if((el=hit("data-libtrack"))){ libTrack=el.dataset.libtrack; renderTrackDetail(libTrack); window.scrollTo({top:0,behavior:"instant"}); return; }
+    if(hit("data-libback")){ libTrack=null; renderTracks(); window.scrollTo({top:0,behavior:"instant"}); return; }
+    if((el=hit("data-libcourse"))){ const k=el.dataset.libcourse; libOpen[k]=!libOpen[k]; renderTrackDetail(libTrack); return; }
+    if((el=hit("data-ltick"))){
+      const [tr,i]=el.dataset.ltick.split("|");
+      markLesson(tr,+i,el.checked);
+      renderTrackDetail(libTrack); paintHeader();
+      return;
+    }
+    if((el=hit("data-lopen"))){ const [tr,i]=el.dataset.lopen.split("|"); openLesson(tr,+i); return; }
+    if((el=hit("data-lset"))){
+      const [tr,i,on]=el.dataset.lset.split("|");
+      markLesson(tr,+i,on==="1");
+      closeSheet(); render();
+      toast(on==="1"?"Done — it will not be scheduled again.":"Back in the rotation.");
+      return;
+    }
+    if((el=hit("data-lsched"))){ const [tr,i]=el.dataset.lsched.split("|"); scheduleNext(tr,+i); return; }
     /* ---- calendar ---- */
     if((el=hit("data-cmon"))){
       const n=+el.dataset.cmon;
@@ -1978,7 +2407,9 @@ function wireGlobal(){
     if((el=hit("data-remexact"))){ try{ AndroidBridge.openExactSettings(); }catch(e){} return; }
     /* sheet actions */
     if((el=hit("data-i-done"))){
-      const f=findItem(el.dataset.iDone); if(f){ f.it.done=!f.it.done; save(); closeSheet(); render(); } return;
+      const f=findItem(el.dataset.iDone);
+      if(f){ f.it.done=!f.it.done; if(f.it.li!=null && !REST(f.it.k)) markLesson(f.it.k,f.it.li,f.it.done,true); save(); closeSheet(); render(); syncReminders(); }
+      return;
     }
     if((el=hit("data-i-defer"))){ askDefer(el.dataset.iDefer); return; }
     if((el=hit("data-i-len"))){ askLength(el.dataset.iLen); return; }
@@ -2106,7 +2537,11 @@ function wallpaper(){
   render();
   wallpaper();
   syncReminders();
-  setInterval(()=>{ if(view==="today"&&cursor===todayKey()) renderDay(); }, 60000);
+  let anchorDay=todayKey();
+  setInterval(()=>{
+    if(todayKey()!==anchorDay){ anchorDay=todayKey(); clearOrd(); replanFuture(); render(); syncReminders(); return; }
+    if(view==="today"&&cursor===todayKey()) renderDay();
+  }, 60000);
   if(seeded) toast("Loaded the plan saved inside this file.");
 })();
 </script>
