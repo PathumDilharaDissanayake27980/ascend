@@ -450,6 +450,9 @@ const REST = k => !!(TRACKS[k] && TRACKS[k].rest);
 const RESTNAME = {brk:"Break. Stand up, water, no screens", din:"Meal break", ent:"Entertainment / downtime", free:"Free time, yours"};
 /* six-track career guide (guide.js): its tracks lead, the original curriculum stays as a library */
 if(window.GUIDE) GUIDE.install({POOLS, TRACKS, TRACKGUIDE, COURSEDESC, REF, TRACKREF});
+TRACKS.srs={n:"Spaced recall", c:"#F78C6C", s:"RECALL"};
+TRACKGUIDE.srs={how:"Close everything. Write or say all you remember about the lesson for 5 minutes, then open your notes and fix the gaps. Recalling is what makes it stick, not re-reading.", done:"You recalled the key ideas from memory and corrected what you missed."};
+TRACKREF.srs=["Why spaced retrieval works (Learning Scientists)","https://www.learningscientists.org/blog/2016/7/21-1"];
 
 /* ================= dates ================= */
 const DAYNAMES=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -719,14 +722,53 @@ function ordinals(dateKey){
 }
 function clearOrd(){ for(const k in ORD) delete ORD[k]; bumpStruct(); }
 
+/* ================= spaced recall ================= */
+const SRS_DUE=[1,3,7,14,30];
+function srsKey(it){ return (it.srsOf||it.k)+"|"+(it.srsLi!=null?it.srsLi:(it.li!=null?it.li:it.title)); }
+function srsPick(dateKey, used){
+  const cands=[];
+  Object.keys(S.days).forEach(k=>{
+    if(k>=dateKey) return;
+    const age=daysBetween(k, dateKey);
+    if(age<1 || age>45) return;
+    S.days[k].forEach(it=>{
+      if(REST(it.k) || it.k==="srs" || !it.done) return;
+      const key=srsKey(it);
+      if(used.has(key)) return;
+      const dist=Math.min(...SRS_DUE.map(d=>Math.abs(d-age)));
+      cands.push({it, key, age, score:(SRS_DUE.includes(age)?0:10)+dist});
+    });
+  });
+  // skip anything already recalled in the last two days
+  for(let d=1; d<=2; d++) (S.days[addDays(dateKey,-d)]||[]).forEach(x=>{ if(x.k==="srs") used.add(srsKey({k:x.srsOf, li:x.srsLi, title:x.srsTitle})); });
+  const fresh=cands.filter(c=>!used.has(c.key)).sort((a,b)=>a.score-b.score || a.age-b.age);
+  return fresh[0]||null;
+}
 function generateDay(dateKey){
   const st=structure(dateKey);
   if(!st.length) return [];
   const base=Object.assign({}, ordinals(dateKey));
   const ord=orderOf(dateKey);
   let si=0;
+  const recalled=new Set();
   return st.map(b=>{
     const it={id:uid(), m:b.m, st:b.st, done:false};
+    if(b.k==="study" && ord[si%ord.length]==="srs"){
+      si++;
+      const c=srsPick(dateKey, recalled);
+      it.k="srs";
+      if(c){
+        recalled.add(c.key);
+        it.title="Recall: "+String(c.it.title).replace(/^(Recall|Review): /,"");
+        it.course=(TRACKS[c.it.k]?TRACKS[c.it.k].n:"")+" · learned "+c.age+" day"+(c.age===1?"":"s")+" ago";
+        it.srsOf=c.it.k; it.srsLi=c.it.li; it.srsTitle=c.it.title;
+      }else{
+        // nothing finished yet to recall: a general review lesson instead
+        const L=lessonAt("review", (base.review=(base.review||0)+1));
+        it.k="review"; it.title=L.t; it.course=L.c||"Review & Retention"; if(L.idx!=null) it.li=L.idx;
+      }
+      return it;
+    }
     if(b.k==="study"){
       const track=ord[si%ord.length]; si++;
       const n=base[track]||0; base[track]=n+1;
@@ -780,7 +822,10 @@ function schedulable(track){
   const lim=guideMonth()+1;
   return rem.some(i=>{ const it=(POOLS[track]||[])[i]; return !it.g || it.g<=lim; });
 }
-function taskOf(track, item){ return window.GUIDE?GUIDE.taskFor(track, item):""; }
+function taskOf(track, item){
+  if(track==="srs") return "Closed book: write everything you remember about \""+String(item&&item.t||"this lesson").replace(/^Recall: /,"")+"\" for 5 minutes, then check your notes and fix the gaps.";
+  return window.GUIDE?GUIDE.taskFor(track, item):"";
+}
 function phaseLabel(){
   if(!window.GUIDE) return "";
   const f=GUIDE.focus(guideMonth(), unfinished);
@@ -804,7 +849,7 @@ function b64urlDecode(txt){
 }
 function validHandoff(h){
   if(!h || h.v!==1 || h.app!=="shiftwise" || !Array.isArray(h.days) || h.days.length>62) return false;
-  const kinds={learn:1,build:1,cert:1};
+  const kinds={learn:1,build:1,cert:1,review:1};
   const mins=v=>v===undefined || (Number.isInteger(v) && v>=0 && v<=2880);
   return h.days.every(d=>d && /^\d{4}-\d{2}-\d{2}$/.test(d.d) && SW_CODES[d.c] && Array.isArray(d.b) && d.b.length<=12 &&
     mins(d.w) && mins(d.z) && (d.f===undefined || (typeof d.f==="number" && d.f>=0 && d.f<=100)) &&
@@ -829,7 +874,11 @@ function applyShiftWise(h, quiet){
     const base=Math.max(0,daysBetween(S.start, day.d))*4;
     // on a high-fatigue day new material is swapped for review: same time, lighter load
     const tired=typeof day.f==="number" && day.f>=50;
-    const order=blocks.map((b,i)=>{ const t=GUIDE.trackFor(b[2], base+i, month, unfinished, schedulable); return (tired && b[2]==="learn")?"review":t; });
+    const order=blocks.map((b,i)=>{
+      if(b[2]==="review") return "srs";
+      const t=GUIDE.trackFor(b[2], base+i, month, unfinished, schedulable);
+      return (tired && b[2]==="learn")?"srs":t;
+    });
     S.custom[day.d]={n:"ShiftWise", sw:day.c, win:blocks.map(b=>[b[0], b[0]+b[1]]), fix:[], out:[],
       len:blocks.reduce((m,b)=>Math.max(m,b[1]),45), brk:10, every:99, order};
   });
@@ -976,7 +1025,7 @@ function linkReceive(txt){
   setTimeout(cloudSync, 500);
 }
 window.ascendLink=linkReceive;
-function kindOfTrack(k){ return (k==="build"||k==="project")?"build":(k==="cert")?"cert":"learn"; }
+function kindOfTrack(k){ return (k==="build"||k==="project")?"build":(k==="cert")?"cert":(k==="srs"||k==="review")?"review":"learn"; }
 /* completed sessions from the last two weeks, for ShiftWise's log */
 function swReportLink(){
   const items=[];
@@ -1137,7 +1186,7 @@ function paintSide(){
   h+='<button class="srow" data-jump="calendar"><span class="dot" style="background:#C792EA"></span>Calendar</button>';
   h+='<div class="sideh">Tracks</div>';
   Object.entries(TRACKS).forEach(([k,v])=>{
-    if(REST(k)) return;
+    if(REST(k) || k==="srs") return;
     const pool=(POOLS[k]||[]).length;
     h+='<button class="srow" data-track="'+k+'"><span class="dot" style="background:'+v.c+'"></span>'+v.n+'<span class="frac">'+(ts[k]?ts[k].done:0)+'/'+pool+'</span></button>';
   });
@@ -1563,7 +1612,7 @@ function rebalancePlan(apply){
 
   const rem={}; let remTotal=0;
   Object.keys(TRACKS).forEach(k=>{
-    if(REST(k)) return;
+    if(REST(k) || k==="srs") return;
     const r=remainingIdx(k).length;
     if(!r) return;
     rem[k]=r; remTotal+=r;
@@ -1719,7 +1768,7 @@ function renderTracks(){
   for(let d=0; d<7; d++) getDay(addDays(todayKey(),d)).forEach(it=>{ if(!REST(it.k)) nextWeekCount[it.k]=(nextWeekCount[it.k]||0)+1; });
   let h='<div class="dayhead"><div><h2>Curriculum</h2><div class="sub">Every lesson in the plan: tap a track to read, study and tick things off directly</div></div></div>';
   Object.entries(TRACKS).forEach(([k,v])=>{
-    if(REST(k)) return;
+    if(REST(k) || k==="srs") return;
     const pool=(POOLS[k]||[]).length, d=doneCount(k);
     const pct=pool?Math.round(d/pool*100):0;
     const perWeek=nextWeekCount[k]||0;
