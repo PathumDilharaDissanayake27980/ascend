@@ -1,0 +1,37 @@
+# Publishes the web version of Ascend (the same files the Android app ships) on GitHub Pages:
+# https://pathumdilharadissanayake27980.github.io/ascend/
+# ShiftWise links here, and to the Android app when it is installed.
+name: Deploy web app
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'app/src/main/assets/**', '.github/workflows/deploy-pages.yml' ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the scripts parse
+        run: |
+          node -e 'const fs=require("fs");const h=fs.readFileSync("app/src/main/assets/index.html","utf8");const m=h.match(/<script>\n([\s\S]*)<\/script>\s*<\/body>/);new Function(m[1]);global.window={};require("./app/src/main/assets/guide.js");if(!window.GUIDE)process.exit(1);console.log("ok")'
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: app/src/main/assets
+      - id: deployment
+        uses: actions/deploy-pages@v4

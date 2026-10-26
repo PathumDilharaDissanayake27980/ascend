@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import java.util.regex.Pattern;
 import android.provider.Settings;
 import android.view.KeyEvent;
 import android.webkit.JavascriptInterface;
@@ -19,6 +20,17 @@ import android.webkit.WebViewClient;
 public class MainActivity extends Activity {
 
     private WebView web;
+
+    /** ShiftWise opens ascend://import?sw=<base64url plan>. Only that exact shape is accepted. */
+    private static final Pattern PAYLOAD = Pattern.compile("[A-Za-z0-9_-]{1,60000}");
+
+    private static String payloadFrom(Intent intent) {
+        if (intent == null) return null;
+        Uri u = intent.getData();
+        if (u == null || !"ascend".equals(u.getScheme()) || !"import".equals(u.getHost())) return null;
+        String p = u.getQueryParameter("sw");
+        return (p != null && PAYLOAD.matcher(p).matches()) ? p : null;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +61,8 @@ public class MainActivity extends Activity {
             }
         });
         web.addJavascriptInterface(new Bridge(), "AndroidBridge");
-        web.loadUrl("file:///android_asset/index.html");
+        String sw = payloadFrom(getIntent());
+        web.loadUrl("file:///android_asset/index.html" + (sw != null ? "#sw=" + sw : ""));
 
         setContentView(web);
     }
@@ -116,6 +129,17 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public boolean isNative() { return true; }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        String sw = payloadFrom(intent);
+        if (sw != null && web != null) {
+            // payload is [A-Za-z0-9_-] only, so it is safe inside a JS string literal
+            web.evaluateJavascript("window.ascendReceive && window.ascendReceive('" + sw + "')", null);
+        }
     }
 
     /** On Android 12+, minute-accurate alarms need the user to grant the permission. */

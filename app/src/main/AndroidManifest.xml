@@ -25,6 +25,13 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- ShiftWise hands over the shift-aware study plan with ascend://import?sw=... -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="ascend" android:host="import" />
+            </intent-filter>
         </activity>
 
         <receiver android:name=".SlotReceiver" android:exported="false" />

@@ -1,5 +1,11 @@
 plugins { id 'com.android.application' }
 
+// Release builds are signed with the permanent key from the ASCEND_KEYSTORE* secrets, so every new
+// APK installs over the previous one and keeps your progress. Without them, a debug build is made.
+def keystorePath = System.getenv("ASCEND_KEYSTORE")
+def keystorePassword = System.getenv("ASCEND_KEYSTORE_PASSWORD")
+def runNumber = (System.getenv("GITHUB_RUN_NUMBER") ?: "0").toInteger()
+
 android {
     namespace 'com.eliteswe.roadmap'
     compileSdk 34
@@ -8,14 +14,26 @@ android {
         applicationId "com.eliteswe.roadmap"
         minSdk 24
         targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        versionCode 100 + runNumber
+        versionName "2.0." + runNumber
+    }
+
+    signingConfigs {
+        release {
+            if (keystorePath) {
+                storeFile file(keystorePath)
+                storePassword keystorePassword
+                keyAlias "ascend"
+                keyPassword keystorePassword
+            }
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            if (keystorePath) signingConfig signingConfigs.release
         }
     }
 
