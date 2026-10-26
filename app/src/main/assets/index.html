@@ -804,7 +804,7 @@ function retime(dateKey){
 }
 
 /* ================= guide pacing ================= */
-function weekStudyMin(){ const w=S.sw&&S.sw.week; return w?(w.learn||0)+(w.build||0)+(w.cert||0):0; }
+function weekStudyMin(){ const w=S.sw&&S.sw.week; return w?(w.learn||0)+(w.build||0)+(w.cert||0)+(w.review||0):0; }
 function guideMonth(){ return window.GUIDE?GUIDE.month(S.start, todayKey(), weekStudyMin()):1; }
 function unfinished(track){ return remainingIdx(track).length>0; }
 /* lessons that are due: projects and exams open when the guide reaches their month */
@@ -1063,7 +1063,7 @@ function swCard(){
   if(sw){
     const stale=sw.until<addDays(todayKey(),3);
     h+='<p class="hint"><b>ShiftWise plans when, Ascend tracks what.</b> Study blocks come from your shift roster in ShiftWise, '+prettyDay(sw.from).split(", ")[1]+' to '+prettyDay(sw.until).split(", ")[1]+'. Last sync '+new Date(sw.got).toLocaleString()+'.'+(stale?' <b>Open ShiftWise once so the next days get their times.</b>':'')+'</p>';
-    if(sw.week) h+='<p class="hint">Weekly goal: '+(sw.week.learn/60).toFixed(1)+'h lessons &middot; '+(sw.week.build/60).toFixed(1)+'h projects &middot; '+(sw.week.cert/60).toFixed(1)+'h exam prep. Guide month '+guideMonth().toFixed(1)+', focus: '+esc(phaseLabel())+'.</p>';
+    if(sw.week) h+='<p class="hint">Weekly goal: '+(sw.week.learn/60).toFixed(1)+'h lessons &middot; '+(sw.week.build/60).toFixed(1)+'h projects &middot; '+(sw.week.cert/60).toFixed(1)+'h exam prep &middot; '+((sw.week.review||0)/60).toFixed(1)+'h review. Guide month '+guideMonth().toFixed(1)+', focus: '+esc(phaseLabel())+'.</p>';
   }else{
     h+='<p class="hint">Open ShiftWise and tap <b>Open in Ascend</b>. Your lessons then fit exactly into the free time your shifts leave, with sleep, meals and rest protected.</p>';
   }
