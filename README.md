@@ -10,6 +10,13 @@ Your study plan for the six-track engineering career guide (Foundations → Soft
 
 ## How the two apps work together
 
+**They sync by themselves now** (details in [WIRING.md](WIRING.md)):
+- **Same browser** (ShiftWise and Ascend web): live. Change a shift and Ascend re-plans; tick a lesson and ShiftWise logs it.
+- **Android app or another device:** tap **Connect Ascend app** on ShiftWise's Today card once. After that they sync through your GitHub repo, encrypted, every time either app opens and every 10 minutes.
+- Ascend shows each day's shift, wake time, bedtime and fatigue from ShiftWise, and swaps new lessons for review on high-fatigue days. ShiftWise shows your lessons, tasks and progress in its plan and phone alerts.
+
+The steps below still work as a manual fallback.
+
 ```
 ShiftWise (shifts, sleep, balance)                     Ascend (what to study)
   roster → planner → study blocks ──"Open in Ascend"──▶  lessons placed in exactly those blocks

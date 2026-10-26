@@ -21,15 +21,21 @@ public class MainActivity extends Activity {
 
     private WebView web;
 
-    /** ShiftWise opens ascend://import?sw=<base64url plan>. Only that exact shape is accepted. */
+    /**
+     * ShiftWise opens ascend://import?sw=<plan> (the timetable) or ?link=<connection> (cloud wiring).
+     * Only base64url payloads are accepted. Returns {"sw"|"link", payload} or null.
+     */
     private static final Pattern PAYLOAD = Pattern.compile("[A-Za-z0-9_-]{1,60000}");
 
-    private static String payloadFrom(Intent intent) {
+    private static String[] payloadFrom(Intent intent) {
         if (intent == null) return null;
         Uri u = intent.getData();
         if (u == null || !"ascend".equals(u.getScheme()) || !"import".equals(u.getHost())) return null;
-        String p = u.getQueryParameter("sw");
-        return (p != null && PAYLOAD.matcher(p).matches()) ? p : null;
+        for (String key : new String[]{"sw", "link"}) {
+            String p = u.getQueryParameter(key);
+            if (p != null && PAYLOAD.matcher(p).matches()) return new String[]{key, p};
+        }
+        return null;
     }
 
     @Override
@@ -61,8 +67,8 @@ public class MainActivity extends Activity {
             }
         });
         web.addJavascriptInterface(new Bridge(), "AndroidBridge");
-        String sw = payloadFrom(getIntent());
-        web.loadUrl("file:///android_asset/index.html" + (sw != null ? "#sw=" + sw : ""));
+        String[] in = payloadFrom(getIntent());
+        web.loadUrl("file:///android_asset/index.html" + (in != null ? "#" + in[0] + "=" + in[1] : ""));
 
         setContentView(web);
     }
@@ -135,10 +141,11 @@ public class MainActivity extends Activity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-        String sw = payloadFrom(intent);
-        if (sw != null && web != null) {
+        String[] in = payloadFrom(intent);
+        if (in != null && web != null) {
             // payload is [A-Za-z0-9_-] only, so it is safe inside a JS string literal
-            web.evaluateJavascript("window.ascendReceive && window.ascendReceive('" + sw + "')", null);
+            String fn = "sw".equals(in[0]) ? "ascendReceive" : "ascendLink";
+            web.evaluateJavascript("window." + fn + " && window." + fn + "('" + in[1] + "')", null);
         }
     }
 

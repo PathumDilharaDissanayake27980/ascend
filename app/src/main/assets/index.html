@@ -525,6 +525,7 @@ function save(){
     const B=nativeBridge();
     if(B && B.store){ try{ B.store(KEY,p); ok=true; memoryOnly=false; }catch(e){} }
     if(!ok) memoryOnly=true;
+    publishWiring();
   }, 300);
 }
 
@@ -804,10 +805,13 @@ function b64urlDecode(txt){
 function validHandoff(h){
   if(!h || h.v!==1 || h.app!=="shiftwise" || !Array.isArray(h.days) || h.days.length>62) return false;
   const kinds={learn:1,build:1,cert:1};
+  const mins=v=>v===undefined || (Number.isInteger(v) && v>=0 && v<=2880);
   return h.days.every(d=>d && /^\d{4}-\d{2}-\d{2}$/.test(d.d) && SW_CODES[d.c] && Array.isArray(d.b) && d.b.length<=12 &&
+    mins(d.w) && mins(d.z) && (d.f===undefined || (typeof d.f==="number" && d.f>=0 && d.f<=100)) &&
+    (d.s===undefined || (Array.isArray(d.s) && mins(d.s[0]) && mins(d.s[1]))) &&
     d.b.every(b=>Array.isArray(b) && Number.isInteger(b[0]) && Number.isInteger(b[1]) && b[0]>=0 && b[0]<1440 && b[1]>=15 && b[1]<=480 && kinds[b[2]]));
 }
-function applyShiftWise(h){
+function applyShiftWise(h, quiet){
   const today=todayKey();
   const days=h.days.filter(d=>d.d>=today).sort((a,b)=>a.d<b.d?-1:1);
   if(!days.length){ toast("That ShiftWise plan is out of date. Open ShiftWise again."); return; }
@@ -817,21 +821,26 @@ function applyShiftWise(h){
     return;
   }
   const month=guideMonth();
-  const codes={};
+  const codes={}, info={};
   days.forEach(day=>{
     codes[day.d]=day.c;
+    info[day.d]={c:day.c, s:day.s||null, w:day.w, z:day.z, f:day.f, fl:day.fl};
     const blocks=day.b.slice().sort((a,b)=>a[0]-b[0]);
     const base=Math.max(0,daysBetween(S.start, day.d))*4;
-    const order=blocks.map((b,i)=>GUIDE.trackFor(b[2], base+i, month, unfinished, schedulable));
+    // on a high-fatigue day new material is swapped for review: same time, lighter load
+    const tired=typeof day.f==="number" && day.f>=50;
+    const order=blocks.map((b,i)=>{ const t=GUIDE.trackFor(b[2], base+i, month, unfinished, schedulable); return (tired && b[2]==="learn")?"review":t; });
     S.custom[day.d]={n:"ShiftWise", sw:day.c, win:blocks.map(b=>[b[0], b[0]+b[1]]), fix:[], out:[],
       len:blocks.reduce((m,b)=>Math.max(m,b[1]),45), brk:10, every:99, order};
   });
-  S.sw={at:h.at, got:Date.now(), week:h.week||null, from:days[0].d, until:days[days.length-1].d, codes:Object.assign({}, (S.sw&&S.sw.codes)||{}, codes)};
-  Object.keys(S.sw.codes).forEach(k=>{ if(k<addDays(today,-30)) delete S.sw.codes[k]; });
+  S.sw={at:h.at, got:Date.now(), week:h.week||null, from:days[0].d, until:days[days.length-1].d,
+    codes:Object.assign({}, (S.sw&&S.sw.codes)||{}, codes), info:Object.assign({}, (S.sw&&S.sw.info)||{}, info)};
+  Object.keys(S.sw.codes).forEach(k=>{ if(k<addDays(today,-30)){ delete S.sw.codes[k]; delete S.sw.info[k]; } });
   clearOrd(); replanFuture(days[0].d); save(); syncReminders();
   cursor=today; render();
   const mins=days.slice(0,7).reduce((t,d)=>t+d.b.reduce((a,b)=>a+b[1],0),0);
-  toast("Synced with ShiftWise: "+(mins/60).toFixed(1)+"h of study fitted around your shifts this week.");
+  toast((quiet?"ShiftWise updated your timetable: ":"Synced with ShiftWise: ")+(mins/60).toFixed(1)+"h of study fitted around your shifts this week.");
+  publishWiring();
 }
 function swReceive(txt){
   const h=b64urlDecode(txt);
@@ -840,6 +849,133 @@ function swReceive(txt){
   applyShiftWise(h);
 }
 window.ascendReceive=swReceive;
+
+/* ================= live wiring ================= */
+/* Same browser: ShiftWise and the web version of Ascend share the github.io origin, so each reads the
+   other's record from storage and reacts the moment it changes. Other devices and the Android app use
+   encrypted files on the user's GitHub repo (S.cloud), set up with one tap from ShiftWise. */
+const LOCAL_SHIFTWISE="wiring:shiftwise", LOCAL_ASCEND="wiring:ascend";
+function upcomingLessons(){
+  const up=[];
+  for(let d=0; d<14 && up.length<120; d++){
+    const k=addDays(todayKey(),d);
+    (S.days[k]||(d<7?getDay(k):[])).forEach(it=>{
+      if(REST(it.k) || it.done || up.length>=120) return;
+      const tk=taskOf(it.k, it.li!=null?poolItem(it.k,it.li):{t:it.title,c:it.course});
+      up.push([k, Math.max(0,Math.min(2880,it.st)), Math.max(5,Math.min(600,it.m)), String(it.title||"").slice(0,200), String(tk||"").slice(0,400)]);
+    });
+  }
+  return up;
+}
+function wiringReport(){
+  const items=[];
+  for(let d=13; d>=0; d--){
+    const k=addDays(todayKey(),-d);
+    (S.days[k]||[]).forEach(it=>{
+      if(REST(it.k) || !it.done) return;
+      items.push({d:k, st:Math.max(0,Math.min(2880,it.st)), m:Math.max(5,Math.min(600,it.m)), k:kindOfTrack(it.k), t:String(it.title||"").slice(0,200)});
+    });
+  }
+  return {v:1, app:"ascend", at:Date.now(), items:items.slice(-300), p:progressSnapshot(), up:upcomingLessons()};
+}
+let lastWired="";
+function publishWiring(){
+  let r;
+  try{ r=wiringReport(); }catch(e){ return; }
+  const body=JSON.stringify(Object.assign({}, r, {at:0}));
+  if(body===lastWired) return;
+  lastWired=body;
+  try{ localStorage.setItem(LOCAL_ASCEND, JSON.stringify(r)); }catch(e){}
+  cloudSoon();
+}
+function readShiftWiseLocal(raw, quiet){
+  if(!raw || !window.GUIDE) return;
+  let h=null; try{ h=JSON.parse(raw); }catch(e){ return; }
+  if(!validHandoff(h)) return;
+  if(S.sw && S.sw.at>=h.at) return;
+  if(h.days.every(d=>!d.b.length)) return;
+  applyShiftWise(h, quiet);
+}
+addEventListener("storage", e=>{ if(e.key===LOCAL_SHIFTWISE) readShiftWiseLocal(e.newValue, true); });
+
+/* ---- encrypted cloud wiring through GitHub (same format and key as ShiftWise's alerts) ---- */
+const WIRING_SHIFTWISE="wiring/shiftwise.enc.json", WIRING_ASCEND="wiring/ascend.enc.json", WIRING_FORMAT="shiftwise-wiring";
+function b64(bytes){ let s=""; bytes.forEach(b=>{ s+=String.fromCharCode(b); }); return btoa(s); }
+function unb64(t){ const s=atob(t); const o=new Uint8Array(s.length); for(let i=0;i<s.length;i++) o[i]=s.charCodeAt(i); return o; }
+async function aesKeyFor(pass, salt, iterations){
+  const base=await crypto.subtle.importKey("raw", new TextEncoder().encode(pass.normalize("NFKC")), "PBKDF2", false, ["deriveBits"]);
+  const bits=await crypto.subtle.deriveBits({name:"PBKDF2", hash:"SHA-256", salt, iterations}, base, 256);
+  return crypto.subtle.importKey("raw", bits, "AES-GCM", false, ["encrypt","decrypt"]);
+}
+async function sealText(text, pass){
+  const salt=crypto.getRandomValues(new Uint8Array(16)), iv=crypto.getRandomValues(new Uint8Array(12)), iterations=600000;
+  const key=await aesKeyFor(pass, salt, iterations);
+  const ct=await crypto.subtle.encrypt({name:"AES-GCM", iv}, key, new TextEncoder().encode(text));
+  return {alg:"AES-256-GCM", kdf:"PBKDF2-SHA256", iterations, salt:b64(salt), iv:b64(iv), ciphertext:b64(new Uint8Array(ct))};
+}
+async function openText(sealed, pass){
+  if(!sealed || sealed.alg!=="AES-256-GCM" || sealed.iterations<100000 || sealed.iterations>5000000) throw new Error("format");
+  const key=await aesKeyFor(pass, unb64(sealed.salt), sealed.iterations);
+  return new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM", iv:unb64(sealed.iv)}, key, unb64(sealed.ciphertext)));
+}
+async function gh(path, init){
+  const c=S.cloud;
+  const res=await fetch("https://api.github.com/repos/"+c.repo+path, Object.assign({}, init||{}, {
+    headers:{Accept:"application/vnd.github+json", Authorization:"Bearer "+c.token, "X-GitHub-Api-Version":"2022-11-28", "Content-Type":"application/json"},
+    cache:"no-store"}));
+  if(res.status===404) return null;
+  if(!res.ok) throw new Error(res.status===401?"GitHub rejected the token (expired?). Reconnect from ShiftWise.":"GitHub error "+res.status);
+  return res.json();
+}
+async function ghGet(file){
+  const r=await gh("/contents/"+file+"?ref="+encodeURIComponent(S.cloud.branch));
+  return r?{sha:r.sha, text:new TextDecoder().decode(unb64(r.content.replace(/\s/g,"")))}:null;
+}
+async function ghPut(file, text, sha){
+  await gh("/contents/"+file, {method:"PUT", body:JSON.stringify({message:"Sync Ascend progress", content:b64(new TextEncoder().encode(text)), branch:S.cloud.branch, ...(sha?{sha}:{})})});
+}
+let cloudBusy=false, cloudTimer=null, lastCloudPush="";
+function cloudSoon(){ clearTimeout(cloudTimer); cloudTimer=setTimeout(cloudSync, 20000); }
+async function cloudSync(){
+  if(!S.cloud || cloudBusy || (typeof navigator!=="undefined" && navigator.onLine===false)) return;
+  cloudBusy=true;
+  try{
+    const f=await ghGet(WIRING_SHIFTWISE);
+    if(f){
+      const doc=JSON.parse(f.text);
+      if(doc.format===WIRING_FORMAT){
+        const h=JSON.parse(await openText(doc.sealed, S.cloud.key));
+        if(validHandoff(h) && (!S.sw || h.at>S.sw.at) && !h.days.every(d=>!d.b.length)) applyShiftWise(h, true);
+      }
+    }
+    const r=wiringReport();
+    const body=JSON.stringify(Object.assign({}, r, {at:0}));
+    if(body!==lastCloudPush){
+      const sealed=await sealText(JSON.stringify(r), S.cloud.key);
+      const cur=await ghGet(WIRING_ASCEND);
+      await ghPut(WIRING_ASCEND, JSON.stringify({format:WIRING_FORMAT, version:1, updatedAt:r.at, sealed}), cur&&cur.sha);
+      lastCloudPush=body;
+    }
+    S.cloud.ok=Date.now(); S.cloud.err=null; save();
+  }catch(e){
+    S.cloud.err=String(e&&e.message||e).slice(0,200); save();
+  }finally{ cloudBusy=false; }
+}
+setInterval(cloudSync, 10*60*1000);
+document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) cloudSync(); });
+function validLink(x){
+  return x && x.v===1 && x.app==="shiftwise-link" && /^[A-Za-z0-9-]{1,39}\/[A-Za-z0-9._-]{1,100}$/.test(x.repo) &&
+    /^[A-Za-z0-9._\/-]{1,60}$/.test(x.branch) && typeof x.key==="string" && x.key.length>=24 && x.key.length<=128 &&
+    /^(github_pat_|ghp_)[A-Za-z0-9_]{20,255}$/.test(x.token);
+}
+function linkReceive(txt){
+  const x=b64urlDecode(txt);
+  if(!validLink(x)){ toast("That ShiftWise connection link could not be read."); return; }
+  S.cloud={repo:x.repo, branch:x.branch, key:x.key, token:x.token, ok:null, err:null};
+  save(); toast("Wired to ShiftWise through your GitHub repo (encrypted). Syncing now…");
+  setTimeout(cloudSync, 500);
+}
+window.ascendLink=linkReceive;
 function kindOfTrack(k){ return (k==="build"||k==="project")?"build":(k==="cert")?"cert":"learn"; }
 /* completed sessions from the last two weeks, for ShiftWise's log */
 function swReportLink(){
@@ -851,7 +987,21 @@ function swReportLink(){
       items.push({d:k, st:it.st, m:Math.max(5,Math.min(600,it.m)), k:kindOfTrack(it.k), t:String(it.title||"").slice(0,200)});
     });
   }
-  return {n:items.length, mins:items.reduce((a,i)=>a+i.m,0), url:SHIFTWISE_URL+(items.length?"#ascend="+b64urlEncode({v:1, app:"ascend", at:Date.now(), items:items.slice(-300)}):"")};
+  return {n:items.length, mins:items.reduce((a,i)=>a+i.m,0), url:SHIFTWISE_URL+"#ascend="+b64urlEncode({v:1, app:"ascend", at:Date.now(), items:items.slice(-300), p:progressSnapshot()})};
+}
+/* where you stand, for ShiftWise's Today screen */
+function progressSnapshot(){
+  let done=0, total=0;
+  Object.keys(TRACKS).forEach(k=>{ if(REST(k)) return; total+=(POOLS[k]||[]).length; done+=doneCount(k); });
+  const next=[]; const nm=nowMins();
+  for(let d=0; d<7 && next.length<3; d++){
+    const k=addDays(todayKey(),d);
+    getDay(k).forEach(it=>{
+      if(next.length>=3 || REST(it.k) || it.done || (d===0 && it.st+it.m<=nm)) return;
+      next.push([k, Math.max(0,Math.min(2880,it.st)), String(it.title||"").slice(0,120)]);
+    });
+  }
+  return {month:Math.round(guideMonth()*10)/10, phase:phaseLabel().slice(0,80), done, total, streak:streak(), hours:totals().hours, next};
 }
 function openExternal(url){
   const a=document.createElement("a"); a.href=url; a.target="_blank"; a.rel="noopener";
@@ -859,18 +1009,22 @@ function openExternal(url){
 }
 function swCard(){
   const sw=S.sw;
+  const cloud=S.cloud;
   let h='<div class="card swcard"><h3><span class="swmark"></span>ShiftWise <small>'+(sw?"synced":"not linked yet")+'</small></h3>';
   if(sw){
     const stale=sw.until<addDays(todayKey(),3);
-    h+='<p class="hint">Study blocks come from your shift roster in ShiftWise, '+prettyDay(sw.from).split(", ")[1]+' to '+prettyDay(sw.until).split(", ")[1]+'. Last sync '+new Date(sw.got).toLocaleString()+'.'+(stale?' <b>Open ShiftWise soon so the next days get their times.</b>':'')+'</p>';
+    h+='<p class="hint"><b>ShiftWise plans when, Ascend tracks what.</b> Study blocks come from your shift roster in ShiftWise, '+prettyDay(sw.from).split(", ")[1]+' to '+prettyDay(sw.until).split(", ")[1]+'. Last sync '+new Date(sw.got).toLocaleString()+'.'+(stale?' <b>Open ShiftWise once so the next days get their times.</b>':'')+'</p>';
     if(sw.week) h+='<p class="hint">Weekly goal: '+(sw.week.learn/60).toFixed(1)+'h lessons &middot; '+(sw.week.build/60).toFixed(1)+'h projects &middot; '+(sw.week.cert/60).toFixed(1)+'h exam prep. Guide month '+guideMonth().toFixed(1)+', focus: '+esc(phaseLabel())+'.</p>';
   }else{
     h+='<p class="hint">Open ShiftWise and tap <b>Open in Ascend</b>. Your lessons then fit exactly into the free time your shifts leave, with sleep, meals and rest protected.</p>';
   }
+  h+='<p class="hint" style="margin-top:6px"><b>Wiring:</b> '+(cloud
+      ? 'cloud link to '+esc(cloud.repo)+(cloud.err?' &middot; <span style="color:var(--warn)">'+esc(cloud.err)+'</span>':cloud.ok?' &middot; last sync '+new Date(cloud.ok).toLocaleTimeString():' &middot; connecting')
+      : 'live in this browser. For the Android app or another device, tap <b>Connect Ascend app</b> in ShiftWise once.')+'</p>';
   const r=swReportLink();
   h+='<div class="sgrid" style="margin-top:10px">';
-  h+='<button class="sbtn" data-swopen="1">Open ShiftWise<small>shifts, sleep, balance</small></button>';
-  h+='<button class="sbtn" data-swsend="1">Send progress<small>'+(r.n?r.n+' sessions &middot; '+(r.mins/60).toFixed(1)+'h to your log':'nothing completed yet')+'</small></button>';
+  h+='<button class="sbtn" data-swopen="1">Open ShiftWise<small>your progress goes with you'+(r.n?' &middot; '+r.n+' sessions, '+(r.mins/60).toFixed(1)+'h':'')+'</small></button>';
+  if(cloud) h+='<button class="sbtn" data-cloudsync="1">Sync now<small>through GitHub, encrypted</small></button><button class="sbtn warn" data-cloudoff="1">Disconnect<small>removes the token from this device</small></button>';
   h+='</div></div>';
   return h;
 }
@@ -990,8 +1144,7 @@ function paintSide(){
   h+='<div class="sideh">Plan</div>';
   h+='<button class="srow" data-aiopen="1"><span class="dot" style="background:var(--accent)"></span>AI tutor</button>';
   h+='<button class="srow" data-jump="settings"><span class="dot" style="background:var(--accent)"></span>Settings, hours &amp; AI key</button>';
-  h+='<button class="srow" data-swopen="1"><span class="dot" style="background:#5cc2ae"></span>ShiftWise (shifts &amp; balance)</button>';
-  h+='<button class="srow" data-swsend="1"><span class="dot" style="background:#5cc2ae"></span>Send progress to ShiftWise</button>';
+  h+='<button class="srow" data-swopen="1"><span class="dot" style="background:#5cc2ae"></span>ShiftWise: schedule &amp; balance</button>';
   h+='<button class="srow" data-act="export"><span class="dot" style="background:var(--muted)"></span>Export backup</button>';
   h+='<button class="srow" data-act="import"><span class="dot" style="background:var(--muted)"></span>Import backup</button>';
   h+='<button class="srow" data-act="savecopy"><span class="dot" style="background:var(--muted)"></span>Save copy (with progress)</button>';
@@ -1037,7 +1190,7 @@ function dayBar(k){
   h+='</div>';
   const dayLabel=DAYNAMES[parseKey(k).getDay()]+" "+prettyDay(k).split(", ")[1];
   h+='<div class="dayhint">'+(custom && S.custom[k].sw
-      ? "Times come from your shift roster in ShiftWise. Change shifts there, then open Ascend from ShiftWise again.": custom
+      ? "Times come from your shift roster in ShiftWise. Change shifts there and this timetable updates itself.": custom
       ? "This day runs its own schedule. Your weekly default is untouched.": "Changes affect <b>"+dayLabel+"</b> only. To change every "+DAYNAMES[parseKey(k).getDay()]+", use More&#8230;")+'</div>';
   return h;
 }
@@ -1080,7 +1233,16 @@ function renderDay(){
 
   h+=dayBar(k);
   const swc=S.sw&&S.sw.codes&&S.sw.codes[k];
-  if(swc) h+='<div class="swday"><span class="swmark"></span>'+SW_CODES[swc]+' &middot; times from ShiftWise</div>';
+  if(swc){
+    const inf=(S.sw.info||{})[k]||{};
+    let line=SW_CODES[swc];
+    if(inf.s) line+=' '+fmtTime(inf.s[0])+'–'+fmtTime(inf.s[1]);
+    if(typeof inf.w==="number") line+=' &middot; up '+fmtTime(inf.w);
+    if(typeof inf.z==="number") line+=' &middot; bed '+fmtTime(inf.z);
+    if(typeof inf.f==="number") line+=' &middot; fatigue '+inf.f+(inf.fl?' ('+esc(inf.fl)+')':'');
+    h+='<div class="swday'+(inf.f>=50?' warn':'')+'"><span class="swmark"></span>'+line+'</div>';
+    if(inf.f>=50) h+='<div class="swday warn" style="margin-top:-10px">High fatigue: new lessons are swapped for review today. Keep it light.</div>';
+  }
   else if(S.sw && k>S.sw.until) h+='<div class="swday warn"><span class="swmark"></span>Not synced yet. These times are a guess; open ShiftWise to fit them to your shifts.</div>';
   if(!items.length || isOffDay(k)){
     h+='<div class="offday"><b>'+(swc?"No study today":"Rest day")+'</b><span>'+(swc?"ShiftWise kept today free: a shift-heavy or recharge day. Rest is part of the plan.":"Nothing scheduled"+(S.custom[k]?": you marked this one off":"")+".")+' Your streak carries over it, and the lessons simply continue tomorrow.</span></div>';
@@ -1128,7 +1290,7 @@ function renderWeek(){
     const study=items.filter(x=>!REST(x.k));
     const dn=study.filter(x=>x.done).length;
     h+='<div class="wday'+(k===todayKey()?" today":"")+'" data-drop="'+k+'">';
-    h+='<h4 data-openday="'+k+'">'+DAYNAMES[parseKey(k).getDay()]+(isOffDay(k)?'<span class="badge off">OFF</span>':(S.custom[k]?'<span class="badge big">'+(S.custom[k].sw?'SHIFTWISE':'CUSTOM')+'</span>':''))+'</h4>';
+    h+='<h4 data-openday="'+k+'">'+DAYNAMES[parseKey(k).getDay()]+(isOffDay(k)?'<span class="badge off">OFF</span>':(S.custom[k]?'<span class="badge big">'+(S.custom[k].sw?(SW_CODES[S.custom[k].sw]||'ShiftWise').toUpperCase():'CUSTOM')+'</span>':''))+'</h4>';
     h+='<div class="wsub">'+prettyDay(k).split(", ")[1]+' &middot; '+dn+'/'+study.length+' &middot; '+(studyMins(items)/60).toFixed(1)+'h</div>';
     study.forEach(x=>{
       h+='<div class="witem'+(x.done?" d":"")+'" data-id="'+x.id+'" data-day="'+k+'"><i>'+fmtShort(x.st)+'</i>'+esc(x.title.length>42?x.title.slice(0,40)+"…":x.title)+'</div>';
@@ -2558,7 +2720,7 @@ function wireWeekDrag(){
 }
 /* ================= portability ================= */
 function dl(blob,name){ const u=URL.createObjectURL(blob),a=document.createElement("a"); a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove(); setTimeout(()=>URL.revokeObjectURL(u),900); }
-function exportJSON(){ dl(new Blob([JSON.stringify(S,null,1)],{type:"application/json"}), "ascend-progress-"+todayKey()+".json"); toast("Backup exported."); }
+function exportJSON(){ const c=JSON.parse(JSON.stringify(S)); delete c.cloud; dl(new Blob([JSON.stringify(c,null,1)],{type:"application/json"}), "ascend-progress-"+todayKey()+".json"); toast("Backup exported."); }
 function importJSON(file){
   const r=new FileReader();
   r.onload=()=>{ try{ const d=JSON.parse(r.result); if(!d.days) throw 0; S=Object.assign(S,d); applyLook(); save(); render(); toast("Backup restored."); }catch(e){ toast("That is not a valid backup file."); } };
@@ -2571,6 +2733,7 @@ function saveCopy(){
   const o=c.querySelector("#seed"); if(o) o.remove();
   const shareable=JSON.parse(JSON.stringify(S));
   if(shareable.ai){ shareable.ai.akey=""; shareable.ai.gkey=""; }
+  delete shareable.cloud;
   const s=document.createElement("script"); s.id="seed"; s.textContent="window.__SEED__="+JSON.stringify(shareable)+";";
   c.querySelector("head").appendChild(s);
   dl(new Blob(["<!DOCTYPE html>\n"+c.outerHTML],{type:"text/html"}),"ascend-plan-"+todayKey()+".html");
@@ -2663,12 +2826,14 @@ function wireGlobal(){
     const hit=sel=>t.closest("["+sel+"]");
 
     let el;
-    if(hit("data-swopen")){ closeNav(); openExternal(SHIFTWISE_URL); return; }
-    if(hit("data-swsend")){
+    if(hit("data-cloudsync")){ toast("Syncing with ShiftWise…"); cloudSync().then(()=>{ toast(S.cloud&&S.cloud.err?S.cloud.err:"In sync with ShiftWise."); render(); }); return; }
+    if(hit("data-cloudoff")){ delete S.cloud; save(); render(); toast("Disconnected. The token was removed from this device."); return; }
+    if(hit("data-swopen") || hit("data-swsend")){
       closeNav();
       const r=swReportLink();
-      if(!r.n){ toast("Tick off some study blocks first, then send them."); return; }
-      openExternal(r.url); toast("Opening ShiftWise with "+r.n+" sessions."); return;
+      openExternal(r.url);
+      toast(r.n?"Opening ShiftWise with your progress and "+r.n+" completed session"+(r.n===1?"":"s")+".":"Opening ShiftWise with your progress.");
+      return;
     }
     if((el=hit("data-jump"))){
       const j=el.dataset.jump;
@@ -3100,8 +3265,11 @@ function wallpaper(){
   }, 60000);
   if(seeded) toast("Loaded the plan saved inside this file.");
   if(migrated && !seeded){ replanFuture(); save(); toast("Updated: the six-track career guide is in, and study now fits around your shifts from ShiftWise."); }
-  { const m=/^#sw=([A-Za-z0-9_-]+)$/.exec(location.hash);
-    if(m){ history.replaceState(null,"",location.pathname+location.search); swReceive(m[1]); } }
+  { const m=/^#(sw|link)=([A-Za-z0-9_-]+)$/.exec(location.hash);
+    if(m){ history.replaceState(null,"",location.pathname+location.search); if(m[1]==="sw") swReceive(m[2]); else linkReceive(m[2]); } }
+  try{ readShiftWiseLocal(localStorage.getItem(LOCAL_SHIFTWISE), true); }catch(e){}
+  publishWiring();
+  if(S.cloud) setTimeout(cloudSync, 1500);
 })();
 </script>
 </body>
