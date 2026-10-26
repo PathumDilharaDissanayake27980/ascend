@@ -811,6 +811,11 @@ function applyShiftWise(h){
   const today=todayKey();
   const days=h.days.filter(d=>d.d>=today).sort((a,b)=>a.d<b.d?-1:1);
   if(!days.length){ toast("That ShiftWise plan is out of date. Open ShiftWise again."); return; }
+  if(days.every(d=>!d.b.length)){
+    // nothing linked on the ShiftWise side: keep the current schedule rather than blanking every day
+    toast("ShiftWise sent no study blocks, so your schedule is unchanged. In ShiftWise: Activities → Balanced week, then open Ascend again.");
+    return;
+  }
   const month=guideMonth();
   const codes={};
   days.forEach(day=>{
